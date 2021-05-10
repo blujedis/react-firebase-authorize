@@ -1,11 +1,12 @@
 import firebase from 'firebase/app';
 import type { Provider, IAuthInitOptions, IAuthCredential } from '../types';
-import { stringifyParams, hasAuthLink } from '../utils/helpers';
 import { storage } from '../utils/storage';
 
 export function initLink<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { emailVerificationUrl, emailStorageLinkKey, log, model, globalActionCodes } = options as Required<IAuthInitOptions<K>>;
+  const { emailVerificationUrl, emailStorageLinkKey, log, model, globalActionCodes, common } = options as Required<IAuthInitOptions<K>>;
+
+  const { stringifyParams, hasAuthLink} = common;
 
   async function signUp(email: string, params?: Record<string, any>, actionCodes?: firebase.auth.ActionCodeSettings): Promise<boolean> {
 

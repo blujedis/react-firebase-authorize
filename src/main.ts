@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import type firebase from 'firebase/app';
 import { initLink } from './api/link';
 import { initPassword } from './api/password';
 import { initProvider } from './api/provider';
@@ -7,10 +7,10 @@ import { createLogger } from './utils/logger';
 import { createModel } from './api/model';
 import { createUseIdentity } from './components/useIdentity';
 import { useRecaptcha } from './components/useRecaptcha';
-import { hasAuthLink, ensureDisplayName, mapUser } from './utils/helpers';
 import { storage } from './utils/storage';
-import type { Provider, IAuthOptions, IAuthInitOptions, IAuthLogPayload } from './types';
+import type { Provider, IAuthOptions, IAuthInitOptions, IAuthLogPayload, IAuthCredential } from './types';
 import { AUTH_DEFAULTS } from './constants';
+import { createCommon } from './api/common';
 
 export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
 
@@ -20,35 +20,48 @@ export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
   };
 
   const { logger, ...rest } = options;
-  const { userStorageKey, emailStorageLinkKey, isAuthenticatedKey, onAuthCredential, enableWatchState } = options as Required<IAuthOptions<K>>;
+  const { userStorageKey, enableWatchState, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
+
+  // Initialize helpers/utils
 
   const initOptions = rest as Required<IAuthInitOptions<K>>;
   const log = createLogger(logger as ((payload: IAuthLogPayload) => void));
+  const common = createCommon(options);
+
+  const {
+    hasAuthLink,
+    ensureDisplayName,
+    mapUser,
+    isAuthenticated,
+    hasStorageUser,
+    hasStorageEmailLink,
+    getStorageUser,
+    getStorageEmailLink,
+    setStorageUser,
+    setStorageEmailLink,
+    removeStorageUser,
+    removeStorageEmailLink,
+    setStorageAuthenticated,
+    removeStorageAuthenticated
+  } = common;
+
+  options.onAuthCredential = options.onAuthCredential || ((userCredential: IAuthCredential) => {
+    const user = userCredential.user;
+    const extend = {
+      idToken: (userCredential as any).credential?.idToken,
+      accessToken: (userCredential as any).credential?.accessToken
+    };
+    return mapUser(user, extend);
+  });
+  initOptions.onAuthCredential = options.onAuthCredential;
+
+  // onAuthCredential must be init before passing to model.
   const model = createModel(options);
 
-  initOptions.log = log;
+  // Pass instances to internal initOptions. 
   initOptions.model = model;
-
-  // Create storage helpers.
-
-  const hasStorageUser = () => storage.has(userStorageKey);
-  const hasStorageEmailLink = () => storage.has(emailStorageLinkKey);
-
-  const getStorageUser = <T extends firebase.UserInfo>(def: T = null as any) => storage.get<T>(userStorageKey, def);
-  const getStorageEmailLink = <T extends string>(def: T = null as any) => storage.get<T>(emailStorageLinkKey, def);
-
-  const setStorageUser = (value: string | number | boolean | Date | Record<string, any>) => storage.set(userStorageKey, value);
-  const setStorageEmailLink = (email: string) => storage.set(emailStorageLinkKey, email);
-
-  const removeStorageUser = () => storage.remove(userStorageKey);
-  const removeStorageEmailLink = () => storage.remove(emailStorageLinkKey);
-
-  const isAuthenticated = () => {
-    return storage.get<boolean>(isAuthenticatedKey) === true;
-  };
-
-  const setStorageAuthenticated = () => storage.set(isAuthenticatedKey, true);
-  const removeStorageAuthenticated = () => storage.remove(isAuthenticatedKey);
+  initOptions.log = log;
+  initOptions.common = common;
 
   // Init SignIn Providers.
 
@@ -66,7 +79,7 @@ export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
    * @param redirect a path to redirect to or callback function.
    */
   function signOut(redirect?: string | (() => void)) {
-    return firebase.auth().signOut().then(() => {
+    return firebaseInstance.auth().signOut().then(() => {
       storage.remove(userStorageKey);
       if (redirect) {
         if (typeof redirect === 'string' && typeof window !== 'undefined')
@@ -87,7 +100,7 @@ export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
 
     // signOutRedirect?: string | (() => void)
 
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+    const unsubscribe = firebaseInstance.auth().onAuthStateChanged((user) => {
 
       if (handler)
         return handler(user);
@@ -110,7 +123,7 @@ export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
         // NOTE: you cannot get a social provider
         // accessToken here, you'd have to re-auth.
         if (!hasStorageUser()) {
-          const usr = onAuthCredential({ user });
+          const usr = initOptions.onAuthCredential({ user });
           if (usr)
             setStorageUser(usr);
         }

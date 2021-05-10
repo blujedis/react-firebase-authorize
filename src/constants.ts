@@ -1,6 +1,5 @@
 import firebase from 'firebase/app';
-import type { IAuthOptions, IAuthLogPayload, IAuthCredential } from './types';
-import { mapUser } from './utils/helpers';
+import type { IAuthOptions, IAuthLogPayload } from './types';
 
 export const IS_DEV = process.env.NODE_ENV !== 'production';
 
@@ -13,6 +12,7 @@ export const ACTION_CODES: firebase.auth.ActionCodeSettings = {
 };
 
 export const AUTH_DEFAULTS: IAuthOptions<any> = {
+  firebase: null as any,
   enableWatchState: true,
   isAuthenticatedKey: 'isAuthenticated',
   userStorageKey: 'user',
@@ -21,14 +21,6 @@ export const AUTH_DEFAULTS: IAuthOptions<any> = {
   emailVerificationUrl: '',
   collectionName: 'user',
   databasePersist: false,
-  onAuthCredential: (userCredential: IAuthCredential) => {
-    const user = userCredential.user;
-    const extend = {
-      idToken: (userCredential as any).credential?.idToken,
-      accessToken: (userCredential as any).credential?.accessToken
-    };
-    return mapUser(user, extend);
-  },
   logger: ({ timestamp, level, message }: IAuthLogPayload) => console.log(`[${timestamp}]:${level}`, message),
   globalActionCodes: { ...ACTION_CODES }
 };

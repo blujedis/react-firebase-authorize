@@ -1,9 +1,25 @@
 import type { IAuthLogPayload } from '../types';
-import { serializeError } from './helpers';
 
 export type Logger = ReturnType<typeof initLogger>;
 
 let _logger: Logger;
+
+/**
+   * Converts an error to object literal.
+   * 
+   * @param err the error to convert to object
+   */
+function serializeError<E extends Error>(err: E & { [key: string]: any }) {
+  if (!(err instanceof Error))
+    return {};
+  const result = Object.getOwnPropertyNames(err).reduce((a, c) => {
+    a[c as keyof E] = err[c];
+    return a;
+  }, {} as Record<keyof E, any>);
+  if (err.name && !result.name)
+    result.name = err.name;
+  return result;
+}
 
 function initLogger(logger: (payload: IAuthLogPayload) => void) {
 
@@ -20,7 +36,7 @@ function initLogger(logger: (payload: IAuthLogPayload) => void) {
     if (type instanceof Error) {
       value = serializeError(type);
       type = 'error';
-      value['level'] = 'error';
+      (value as any).level = 'error';
     }
 
     else if (type === 'string' && !['fatal', 'error', 'warn', 'info', 'debug'].includes(type)) {

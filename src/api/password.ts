@@ -1,17 +1,19 @@
-import firebase from 'firebase/app';
-import { stringifyParams, updateProfile } from '../utils/helpers';
+import type firebase from 'firebase/app';
 import { storage } from '../utils/storage';
 import type { Provider, IAuthInitOptions, IAuthCredential } from '../types';
 
 export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { userStorageKey, log, model, emailVerificationUrl, globalActionCodes } = options as Required<IAuthInitOptions<K>>;
+  const { userStorageKey, log, model, emailVerificationUrl, globalActionCodes, common, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
+
+
+  const { stringifyParams, updateProfile } = common;
 
   async function sendVerification(actionCodes?: firebase.auth.ActionCodeSettings) {
 
     actionCodes = { ...globalActionCodes, ...actionCodes };
 
-    const currentUser = firebase.auth().currentUser;
+    const currentUser = firebaseInstance.auth().currentUser;
 
     if (!currentUser)
       return false;
@@ -49,7 +51,7 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
       if (!actionCodes?.url)
         return false;
 
-      const credential = await firebase
+      const credential = await firebaseInstance
         .auth()
         .createUserWithEmailAndPassword(email, password);
 
@@ -74,12 +76,12 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
 
     try {
 
-      const methods = await firebase.auth().fetchSignInMethodsForEmail(email);
+      const methods = await firebaseInstance.auth().fetchSignInMethodsForEmail(email);
 
       if (!methods.includes('password'))
         return signUp(email, password, params, actionCodes);
 
-      const credential = await firebase
+      const credential = await firebaseInstance
         .auth()
         .signInWithEmailAndPassword(email, password);
 
@@ -107,7 +109,7 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
   async function sendPasswordReset(email: string) {
 
     try {
-      await firebase.auth().sendPasswordResetEmail(email);
+      await firebaseInstance.auth().sendPasswordResetEmail(email);
       return true;
     }
     catch (err) {
@@ -120,7 +122,7 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
   async function verifyPasswordReset(code: string) {
 
     try {
-      const verifyResult = await firebase.auth().verifyPasswordResetCode(code);
+      const verifyResult = await firebaseInstance.auth().verifyPasswordResetCode(code);
       return verifyResult;
     }
     catch (err) {
@@ -133,7 +135,7 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
   async function confirmPasswordReset(code: string, newPassword: string) {
 
     try {
-      await firebase.auth().confirmPasswordReset(code, newPassword);
+      await firebaseInstance.auth().confirmPasswordReset(code, newPassword);
       return true;
     }
     catch (err) {
@@ -147,7 +149,7 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
 
     try {
 
-      const currentUser = firebase.auth().currentUser;
+      const currentUser = firebaseInstance.auth().currentUser;
 
       if (!currentUser)
         throw new Error(`Cannot update password with user of undefined.`);

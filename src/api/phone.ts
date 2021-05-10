@@ -1,16 +1,16 @@
-import firebase from 'firebase/app';
+import type firebase from 'firebase/app';
 import type { Provider, IAuthInitOptions, IAuthCredential } from '../types';
 import { storage } from '../utils/storage';
 
 export function initPhone<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { userStorageKey, log, model } = options as Required<IAuthInitOptions<K>>;
+  const { userStorageKey, log, model, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
 
   async function signIn(number: string, verifier: firebase.auth.RecaptchaVerifier) {
 
     try {
 
-      const instance = await firebase
+      const instance = await firebaseInstance
         .auth()
         .signInWithPhoneNumber(number, verifier);
 

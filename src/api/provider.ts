@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import type firebase from 'firebase/app';
 import { storage } from '../utils/storage';
 import type { Provider, IAuthInitOptions, ProviderMap, IAuthCredential } from '../types';
 import { PROVIDERS } from '../constants';
@@ -7,7 +7,7 @@ type AuthProvider = firebase.auth.AuthProvider;
 
 export function initProvider<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { userStorageKey, log, model, enabledProviders } = options as Required<IAuthInitOptions<K>>;
+  const { userStorageKey, log, model, enabledProviders, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
 
   const providers: ProviderMap<K> = {} as any;
 
@@ -37,7 +37,7 @@ export function initProvider<K extends Provider>(options: IAuthInitOptions<K>) {
 
       const provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
 
-      const credential = await firebase
+      const credential = await firebaseInstance
         .auth()
         .signInWithPopup(provider);
 
@@ -62,7 +62,7 @@ export function initProvider<K extends Provider>(options: IAuthInitOptions<K>) {
 
       const provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
 
-      const currentUser = await firebase.auth().currentUser;
+      const currentUser = await firebaseInstance.auth().currentUser;
 
       if (!currentUser)
         throw new Error(`Failed to link ${provider.providerId} using user of undefined.`);

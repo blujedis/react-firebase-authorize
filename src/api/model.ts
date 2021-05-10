@@ -1,18 +1,15 @@
-import firebase from 'firebase/app';
-
+import type firebase from 'firebase/app';
 import type { IAuthCredential, IAuthOptions, Provider } from '../types';
 
 export type AuthModel = ReturnType<typeof initModel>;
 
-let _model: ReturnType<typeof initModel>;
+let _model: AuthModel;
 
 function initModel<K extends Provider>(options: IAuthOptions<K>) {
 
-  const { collectionName, updateProps, onAuthCredential, databasePersist } = options as Required<IAuthOptions<K>>;
+  const { collectionName, updateProps, onAuthCredential, databasePersist, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
 
-  function getRef() {
-    return firebase.firestore().collection(collectionName);
-  }
+  const ref = firebaseInstance.firestore().collection(collectionName);
 
   /**
    * Handles the login credential, normalizes and persists to database if enabled.
@@ -46,7 +43,7 @@ function initModel<K extends Provider>(options: IAuthOptions<K>) {
   }
 
   function findById(uid: string) {
-    return getRef().doc(uid).get();
+    return ref.doc(uid).get();
   }
 
   function create<T extends firebase.UserInfo>(user: T) {
@@ -54,7 +51,7 @@ function initModel<K extends Provider>(options: IAuthOptions<K>) {
     if (!user.uid)
       throw new Error(`Failed to create user with "uid" of undefined.`);
 
-    getRef().doc(user.uid).set(user);
+    ref.doc(user.uid).set(user);
 
   }
 
@@ -72,7 +69,7 @@ function initModel<K extends Provider>(options: IAuthOptions<K>) {
       return key;
     }, {} as any);
 
-    getRef().doc(user.uid).update(obj);
+    ref.doc(user.uid).update(obj);
 
   }
 
