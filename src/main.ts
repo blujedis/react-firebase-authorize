@@ -12,7 +12,7 @@ import type { Provider, IAuthOptions, IAuthInitOptions, IAuthLogPayload, IAuthCr
 import { AUTH_DEFAULTS } from './constants';
 import { createCommon } from './api/common';
 
-export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
+export function initApi<K extends Provider>(options: IAuthOptions<K>) {
 
   options = {
     ...AUTH_DEFAULTS,
@@ -175,7 +175,7 @@ export function initApi<K extends Provider>(options?: IAuthOptions<K>) {
  * 
  * @param options IAuthOptions object.
  */
-export function createAuth<K extends Provider>(options?: IAuthOptions<K>) {
+export function createAuth<K extends Provider>(options: IAuthOptions<K>) {
 
   const auth = initApi<K>(options);
   const useIdentity = createUseIdentity<K>(auth);

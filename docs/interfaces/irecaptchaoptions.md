@@ -28,9 +28,9 @@
 
 **Returns:** *void*
 
-Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L84)
+Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L84)
 
-Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L84)
+Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L84)
 
 ___
 
@@ -44,9 +44,9 @@ ___
 
 **Returns:** *void*
 
-Defined in: [src/types.ts:85](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L85)
+Defined in: [src/types.ts:85](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L85)
 
-Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L84)
+Defined in: [src/types.ts:84](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L84)
 
 ___
 
@@ -54,4 +54,4 @@ ___
 
 • `Optional` **size**: ``"invisible"`` \| ``"normal"``
 
-Defined in: [src/types.ts:83](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L83)
+Defined in: [src/types.ts:83](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L83)

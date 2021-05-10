@@ -23,7 +23,7 @@
 
 • `Optional` **code**: *string*
 
-Defined in: [src/types.ts:73](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L73)
+Defined in: [src/types.ts:73](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L73)
 
 ___
 
@@ -31,7 +31,7 @@ ___
 
 • **level**: ``"log"`` \| ``"fatal"`` \| ``"error"`` \| ``"warn"`` \| ``"info"`` \| ``"debug"``
 
-Defined in: [src/types.ts:69](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L69)
+Defined in: [src/types.ts:69](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L69)
 
 ___
 
@@ -39,7 +39,7 @@ ___
 
 • **message**: *string*
 
-Defined in: [src/types.ts:70](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L70)
+Defined in: [src/types.ts:70](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L70)
 
 ___
 
@@ -47,7 +47,7 @@ ___
 
 • `Optional` **params**: *Record*<string, any\>
 
-Defined in: [src/types.ts:74](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L74)
+Defined in: [src/types.ts:74](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L74)
 
 ___
 
@@ -55,7 +55,7 @@ ___
 
 • `Optional` **stack**: *string*
 
-Defined in: [src/types.ts:72](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L72)
+Defined in: [src/types.ts:72](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L72)
 
 ___
 
@@ -63,4 +63,4 @@ ___
 
 • **timestamp**: *number*
 
-Defined in: [src/types.ts:71](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L71)
+Defined in: [src/types.ts:71](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L71)

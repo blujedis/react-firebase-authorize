@@ -48,7 +48,7 @@ react-firebase-authorize
 | :------ | :------ |
 | `K` | [*Provider*](README.md#provider) |
 
-Defined in: [src/types.ts:22](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L22)
+Defined in: [src/types.ts:22](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L22)
 
 ___
 
@@ -62,7 +62,7 @@ ___
 | :------ | :------ |
 | `K` | [*Provider*](README.md#provider) |
 
-Defined in: [src/types.ts:23](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L23)
+Defined in: [src/types.ts:23](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L23)
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 **Returns:** *Promise*<U\>
 
-Defined in: [src/types.ts:32](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L32)
+Defined in: [src/types.ts:32](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L32)
 
 ___
 
@@ -96,7 +96,7 @@ ___
 
 Ƭ **Firebase**: *typeof* firebase
 
-Defined in: [src/types.ts:20](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L20)
+Defined in: [src/types.ts:20](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L20)
 
 ___
 
@@ -104,7 +104,7 @@ ___
 
 Ƭ **Provider**: keyof [*Providers*](README.md#providers)
 
-Defined in: [src/types.ts:26](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L26)
+Defined in: [src/types.ts:26](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L26)
 
 ___
 
@@ -118,7 +118,7 @@ ___
 | :------ | :------ |
 | `K` | [*Provider*](README.md#provider) |
 
-Defined in: [src/types.ts:28](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L28)
+Defined in: [src/types.ts:28](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L28)
 
 ___
 
@@ -132,7 +132,7 @@ ___
 | :------ | :------ |
 | `K` | [*Provider*](README.md#provider) |
 
-Defined in: [src/types.ts:27](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L27)
+Defined in: [src/types.ts:27](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L27)
 
 ___
 
@@ -140,7 +140,7 @@ ___
 
 Ƭ **Providers**: *typeof* [*PROVIDERS*](README.md#providers)
 
-Defined in: [src/types.ts:25](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L25)
+Defined in: [src/types.ts:25](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L25)
 
 ## Variables
 
@@ -148,7 +148,7 @@ Defined in: [src/types.ts:25](https://github.com/blujedis/react-firebase-authori
 
 • `Const` **ACTION\_CODES**: firebase.auth.ActionCodeSettings
 
-Defined in: [src/constants.ts:6](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/constants.ts#L6)
+Defined in: [src/constants.ts:6](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/constants.ts#L6)
 
 ___
 
@@ -156,7 +156,7 @@ ___
 
 • `Const` **AUTH\_DEFAULTS**: [*IAuthOptions*](interfaces/iauthoptions.md)<any\>
 
-Defined in: [src/constants.ts:14](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/constants.ts#L14)
+Defined in: [src/constants.ts:14](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/constants.ts#L14)
 
 ___
 
@@ -164,7 +164,7 @@ ___
 
 • `Const` **IS\_DEV**: *boolean*
 
-Defined in: [src/constants.ts:4](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/constants.ts#L4)
+Defined in: [src/constants.ts:4](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/constants.ts#L4)
 
 ___
 
@@ -185,13 +185,13 @@ ___
 | `twitter` | () => *TwitterAuthProvider* |
 | `yahoo` | () => *OAuthProvider* |
 
-Defined in: [src/constants.ts:28](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/constants.ts#L28)
+Defined in: [src/constants.ts:28](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/constants.ts#L28)
 
 ## Functions
 
 ### createAuth
 
-▸ **createAuth**<K\>(`options?`: [*IAuthOptions*](interfaces/iauthoptions.md)<K\>): *object*
+▸ **createAuth**<K\>(`options`: [*IAuthOptions*](interfaces/iauthoptions.md)<K\>): *object*
 
 Initialize the firebase auth instance exposing methods
 and helpers for signing into firebase.
@@ -206,7 +206,7 @@ and helpers for signing into firebase.
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `options?` | [*IAuthOptions*](interfaces/iauthoptions.md)<K\> | IAuthOptions object. |
+| `options` | [*IAuthOptions*](interfaces/iauthoptions.md)<K\> | IAuthOptions object. |
 
 **Returns:** *object*
 
@@ -258,13 +258,13 @@ and helpers for signing into firebase.
 | `useIdentity` | <U\>(`props?`: [*IAuthIdentity*](interfaces/iauthidentity.md)<U\>) => { `providers`: [*ProviderMap*](README.md#providermap)<K\> ; `signInByLink`: (`email`: *string*, `params?`: *Record*<string, any\>, `actionCodes?`: firebase.auth.ActionCodeSettings) => *Promise*<boolean \| User\> ; `signInByPassword`: (`email`: *string*, `password`: *string*, `params?`: *Record*<string, any\>, `actionCodes?`: firebase.auth.ActionCodeSettings) => *Promise*<boolean \| User\> ; `signInByPhone`: (`number`: *string*, `verifier`: firebase.auth.RecaptchaVerifier) => *Promise*<(`code`: *string*) => *Promise*<User\>\> ; `signInByProvider`: (`providerId`: K, `withRedirect?`: *boolean*) => *Promise*<firebase.User\>(`provider`: AuthProvider, `withRedirect?`: *boolean*) => *Promise*<firebase.User\> ; `signOut`: (`redirect?`: *string* \| () => *void*) => *Promise*<void\> ; `avatar`:  ; `defaultUser`:  ; `emailLink`:  ; `hasAuthLink`:  ; `isAuthenticated`:  ; `user`:   } |
 | `useRecaptcha` | () => { `RecaptchaComponent`: (`props`: DivProps) => *Element* ; `createVerifier`: (`options?`: [*IRecaptchaOptions*](interfaces/irecaptchaoptions.md)) => *RecaptchaVerifier* ; `ref`: *RefObject*<HTMLDivElement\>  } |
 
-Defined in: [src/main.ts:178](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/main.ts#L178)
+Defined in: [src/main.ts:178](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/main.ts#L178)
 
 ___
 
 ### initApi
 
-▸ **initApi**<K\>(`options?`: [*IAuthOptions*](interfaces/iauthoptions.md)<K\>): *object*
+▸ **initApi**<K\>(`options`: [*IAuthOptions*](interfaces/iauthoptions.md)<K\>): *object*
 
 #### Type parameters
 
@@ -276,7 +276,7 @@ ___
 
 | Name | Type |
 | :------ | :------ |
-| `options?` | [*IAuthOptions*](interfaces/iauthoptions.md)<K\> |
+| `options` | [*IAuthOptions*](interfaces/iauthoptions.md)<K\> |
 
 **Returns:** *object*
 
@@ -325,4 +325,4 @@ ___
 | `unsubscribeWatchState` | Unsubscribe |
 | `watchState` | (`handler?`: (`user`: firebase.User \| ``null``) => *void*) => Unsubscribe |
 
-Defined in: [src/main.ts:15](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/main.ts#L15)
+Defined in: [src/main.ts:15](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/main.ts#L15)

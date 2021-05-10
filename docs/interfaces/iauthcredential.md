@@ -37,7 +37,7 @@ Set credential to optional as we may not
 have it if passing to user defined handler
 on auth state changed.
 
-Defined in: [src/types.ts:40](https://github.com/blujedis/react-firebase-authorize/blob/5f9ad13/src/types.ts#L40)
+Defined in: [src/types.ts:40](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L40)
 
 ___
 
