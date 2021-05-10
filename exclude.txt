@@ -1,0 +1,4 @@
+.tmp
+.tools
+docs
+node_modules

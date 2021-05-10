@@ -1,0 +1,89 @@
+{
+  "name": "react-firebase-authorize",
+  "version": "0.0.1",
+  "description": "Authorization helper for firebase web.",
+  "cdn": "dist/index.umd.js",
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "unpkg": "dist/index.umd.js",
+  "module": "dist/index.esm.js",
+  "jsdelivr": "dist/index.umd.js",
+  "umd:main": "dist/index.umd.js",
+  "exports": {
+    ".": [
+      {
+        "import": "./dist/index.mjs",
+        "require": "./dist/index.cjs",
+        "default": "./dist/index.js"
+      },
+      "./dist/index.js"
+    ]
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "tools": "node ./.tools",
+    "doc": "typedoc src/index.ts && touch ./docs/.nojekyll",
+    "test": "npm run test:lint && npm run test:unit",
+    "test:lint": "eslint \"*/**/*.{ts,js,json}\"",
+    "test:unit": "jest",
+    "lint": "eslint \"*/**/*.{ts,js,json}\" --fix",
+    "build": "rollup --config ./rollup.config.js",
+    "watch": "rollup --config ./rollup.config.js -w",
+    "prepublishOnly": "npm run doc && npm run build && npm run test"
+  },
+  "peerDependencies": {
+    "firebase": "^8.5.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "dependencies": {
+    "md5": "^2.3.0",
+    "query-string": "^7.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^19.0.0",
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "@types/eslint": "^7.2.9",
+    "@types/jest": "^26.0.22",
+    "@types/md5": "^2.3.0",
+    "@types/node": "^15.0.2",
+    "@types/react": "^17.0.5",
+    "@types/react-dom": "^17.0.3",
+    "@typescript-eslint/eslint-plugin": "^4.21.0",
+    "@typescript-eslint/parser": "^4.21.0",
+    "ansi-colors": "^4.1.1",
+    "eslint": "^7.24.0",
+    "firebase": "^8.5.0",
+    "jest": "^26.6.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "rollup": "^2.45.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "ts-jest": "^26.5.4",
+    "ts-jest-resolver": "^1.0.0",
+    "tslib": "^2.2.0",
+    "typedoc": "^0.20.35",
+    "typedoc-plugin-markdown": "^3.6.1",
+    "typescript": "^4.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blujedis/react-firebase-authorize.git"
+  },
+  "keywords": [
+    "typescript",
+    "boilerplate",
+    "library"
+  ],
+  "author": {
+    "name": "Blujedis <blujedicorp@gmail.com>"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/blujedis/react-firebase-authorize/issues"
+  },
+  "homepage": "https://github.com/blujedis/react-firebase-authorize#readme"
+}
