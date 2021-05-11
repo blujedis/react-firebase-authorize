@@ -60,8 +60,8 @@ const options = {
       format: 'umd',
       globals: {
         react: 'React',
-        'react-dom': 'ReactDOM',
-        'firebase': 'firebase'
+        //   'react-dom': 'ReactDOM',
+        //   'firebase': 'firebase'
       }
     }),
     createOutputOptions({
@@ -69,8 +69,8 @@ const options = {
       format: 'umd',
       globals: {
         react: 'React',
-        'react-dom': 'ReactDOM',
-        'firebase': 'firebase'
+        //   'react-dom': 'ReactDOM',
+        //   'firebase': 'firebase'
       },
       plugins: [terser()],
     }),
