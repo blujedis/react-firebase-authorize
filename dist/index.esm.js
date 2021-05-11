@@ -4,15 +4,7 @@
  * Released under the MIT License.
  */
 
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-var React = require('react');
-
-function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
-
-var React__default = /*#__PURE__*/_interopDefaultLegacy(React);
+import React, { forwardRef, useRef } from 'react';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -2903,12 +2895,12 @@ function createUseIdentity(api) {
     return useIdentity;
 }
 
-var RecaptchaComponentRef = React.forwardRef(function (props, ref) {
+var RecaptchaComponentRef = forwardRef(function (props, ref) {
     props = __assign({ id: 'recaptcha-container' }, props);
-    return (React__default['default'].createElement("div", __assign({}, props, { ref: ref })));
+    return (React.createElement("div", __assign({}, props, { ref: ref })));
 });
 function useRecaptcha() {
-    var ref = React.useRef(null);
+    var ref = useRef(null);
     function createVerifier(options) {
         var captcha = new firebase$1
             .auth
@@ -2920,7 +2912,7 @@ function useRecaptcha() {
         return captcha;
     }
     var RecaptchaComponent = function (props) {
-        return React__default['default'].createElement(RecaptchaComponentRef, __assign({}, props, { ref: ref }));
+        return React.createElement(RecaptchaComponentRef, __assign({}, props, { ref: ref }));
     };
     return {
         ref: ref,
@@ -3768,8 +3760,6 @@ function createAuth(options) {
     };
 }
 
-exports.ACTION_CODES = ACTION_CODES;
-exports.AUTH_DEFAULTS = AUTH_DEFAULTS;
-exports.IS_DEV = IS_DEV;
-exports.default = createAuth;
-//# sourceMappingURL=index.js.map
+export default createAuth;
+export { ACTION_CODES, AUTH_DEFAULTS, IS_DEV };
+//# sourceMappingURL=index.esm.js.map

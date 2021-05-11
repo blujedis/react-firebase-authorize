@@ -1,13 +1,11 @@
 import type firebase from 'firebase/app';
 import { initCommon } from './api/common';
 import type { AuthModel } from './api/model';
-import type { initProvider } from './api/provider';
-import type { PROVIDERS } from './constants';
 import { initApi } from './main';
 import type { AuthCommon } from './api/common';
 
 // Simple hack to ensure proper
-// enabled providers.
+// enabled providers and types.
 class TypeWrapper<K extends Provider> {
   main(options: IAuthOptions<K>) {
     return initApi<K>(options);
@@ -20,14 +18,23 @@ class TypeWrapper<K extends Provider> {
 export type Firebase = typeof firebase;
 
 export type AuthApi<K extends Provider> = ReturnType<TypeWrapper<K>['main']>;
-export type AuthUtils<K extends Provider> = ReturnType<TypeWrapper<K>['utils']>;
 
-export type Providers = typeof PROVIDERS;
-export type Provider = keyof Providers;
-export type ProviderMap<K extends Provider> = { [P in K]: ReturnType<Providers[K]>; };
-export type ProviderInstance<K extends Provider> = ReturnType<typeof initProvider> & {
-  providers: ProviderMap<K>;
+export interface Providers {
+  google: firebase.auth.GoogleAuthProvider,
+  facebook: firebase.auth.FacebookAuthProvider,
+  github: firebase.auth.GithubAuthProvider,
+  twitter: firebase.auth.TwitterAuthProvider,
+  microsoft: firebase.auth.OAuthProvider,
+  yahoo: firebase.auth.OAuthProvider,
+  apple: firebase.auth.OAuthProvider,
+  phone: firebase.auth.GoogleAuthProvider
 }
+
+export type Provider = keyof Providers;
+export type ProviderMap<K extends Provider> = { [P in K]: Providers[K]; };
+// export type ProviderInstance<K extends Provider> = ReturnType<typeof initProvider> & {
+//   providers: ProviderMap<K>;
+// }
 
 export type ConfirmAuthCode = <U extends firebase.User>(code: string) => Promise<U>;
 
@@ -68,7 +75,7 @@ export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K>
 export interface IAuthLogPayload {
   level: 'log' | 'fatal' | 'error' | 'warn' | 'info' | 'debug';
   message: string;
-  timestamp: number;
+  timestamp?: number;
   stack?: string;
   code?: string;
   params?: Record<string, any>;

@@ -19,7 +19,9 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
     ...options
   };
 
+  // Destructure logger so we can init/pass in initOptions.
   const { logger, ...rest } = options;
+
   const { userStorageKey, enableWatchState, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
 
   // Initialize helpers/utils
@@ -167,6 +169,7 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
     removeStorageAuthenticated
   };
 
+
 }
 
 /**
@@ -177,11 +180,11 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
  */
 export function createAuth<K extends Provider>(options: IAuthOptions<K>) {
 
-  const auth = initApi<K>(options);
-  const useIdentity = createUseIdentity<K>(auth);
+  const api = initApi<K>(options);
+  const useIdentity = createUseIdentity<K>(api);
 
   return {
-    auth,
+    api,
     useIdentity,
     useRecaptcha
   };

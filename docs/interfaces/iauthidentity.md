@@ -20,4 +20,4 @@
 
 • **defaultUser**: U
 
-Defined in: [src/types.ts:79](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L79)
+Defined in: [src/types.ts:86](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L86)

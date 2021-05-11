@@ -73,7 +73,7 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
  * @param options IAuthOptions object.
  */
 export declare function createAuth<K extends Provider>(options: IAuthOptions<K>): {
-    auth: {
+    api: {
         options: IAuthOptions<K>;
         log: {
             (message: string): void;

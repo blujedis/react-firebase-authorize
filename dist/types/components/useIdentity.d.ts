@@ -1,6 +1,6 @@
 import type firebase from 'firebase/app';
 import type { AuthApi, Provider, IAuthIdentity } from '../types';
-export declare function createUseIdentity<K extends Provider>(auth: AuthApi<K>): <U extends firebase.UserInfo>(props?: IAuthIdentity<U> | undefined) => {
+export declare function createUseIdentity<K extends Provider>(api: AuthApi<K>): <U extends firebase.UserInfo>(props?: IAuthIdentity<U> | undefined) => {
     readonly defaultUser: {
         displayName: string;
         photoURL: string;

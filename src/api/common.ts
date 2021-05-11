@@ -121,7 +121,7 @@ export function initCommon<K extends Provider>(options: IAuthOptions<K>) {
 }
 
 export function createCommon<K extends Provider>(options: IAuthOptions<K>) {
-  if (_utils)
+  if (!_utils)
     _utils = initCommon(options);
   return _utils;
 }

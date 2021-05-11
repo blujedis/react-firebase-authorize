@@ -40,7 +40,7 @@
 
 Inherited from: AuthBaseOptions.collectionName
 
-Defined in: [src/types.ts:51](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L51)
+Defined in: [src/types.ts:58](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L58)
 
 ___
 
@@ -50,7 +50,7 @@ ___
 
 Inherited from: AuthBaseOptions.databasePersist
 
-Defined in: [src/types.ts:52](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L52)
+Defined in: [src/types.ts:59](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L59)
 
 ___
 
@@ -60,7 +60,7 @@ ___
 
 Inherited from: AuthBaseOptions.emailStorageLinkKey
 
-Defined in: [src/types.ts:48](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L48)
+Defined in: [src/types.ts:55](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L55)
 
 ___
 
@@ -70,7 +70,7 @@ ___
 
 Inherited from: AuthBaseOptions.emailVerificationUrl
 
-Defined in: [src/types.ts:49](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L49)
+Defined in: [src/types.ts:56](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L56)
 
 ___
 
@@ -80,7 +80,7 @@ ___
 
 Inherited from: AuthBaseOptions.enableWatchState
 
-Defined in: [src/types.ts:45](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L45)
+Defined in: [src/types.ts:52](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L52)
 
 ___
 
@@ -90,7 +90,7 @@ ___
 
 Inherited from: AuthBaseOptions.enabledProviders
 
-Defined in: [src/types.ts:50](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L50)
+Defined in: [src/types.ts:57](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L57)
 
 ___
 
@@ -100,7 +100,7 @@ ___
 
 Inherited from: AuthBaseOptions.firebase
 
-Defined in: [src/types.ts:44](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L44)
+Defined in: [src/types.ts:51](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L51)
 
 ___
 
@@ -110,7 +110,7 @@ ___
 
 Inherited from: AuthBaseOptions.globalActionCodes
 
-Defined in: [src/types.ts:55](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L55)
+Defined in: [src/types.ts:62](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L62)
 
 ___
 
@@ -120,7 +120,7 @@ ___
 
 Inherited from: AuthBaseOptions.isAuthenticatedKey
 
-Defined in: [src/types.ts:46](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L46)
+Defined in: [src/types.ts:53](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L53)
 
 ___
 
@@ -140,9 +140,9 @@ ___
 
 **Returns:** *void*
 
-Defined in: [src/types.ts:59](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L59)
+Defined in: [src/types.ts:66](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L66)
 
-Defined in: [src/types.ts:59](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L59)
+Defined in: [src/types.ts:66](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L66)
 
 ___
 
@@ -162,11 +162,11 @@ ___
 
 **Returns:** ``null`` \| UserInfo & *Record*<string, any\>
 
-Defined in: [src/types.ts:54](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L54)
+Defined in: [src/types.ts:61](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L61)
 
 Inherited from: AuthBaseOptions.onAuthCredential
 
-Defined in: [src/types.ts:54](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L54)
+Defined in: [src/types.ts:61](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L61)
 
 ___
 
@@ -176,7 +176,7 @@ ___
 
 Inherited from: AuthBaseOptions.updateProps
 
-Defined in: [src/types.ts:53](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L53)
+Defined in: [src/types.ts:60](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L60)
 
 ___
 
@@ -186,4 +186,4 @@ ___
 
 Inherited from: AuthBaseOptions.userStorageKey
 
-Defined in: [src/types.ts:47](https://github.com/blujedis/react-firebase-authorize/blob/d3b55aa/src/types.ts#L47)
+Defined in: [src/types.ts:54](https://github.com/blujedis/react-firebase-authorize/blob/9581d20/src/types.ts#L54)

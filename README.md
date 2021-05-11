@@ -41,9 +41,9 @@ Once this is done and after <code>firebase.initializeApp(firebaseConfig)</code> 
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
-import { rfa } from 'react-firebase-authorize';
+import firebaseAuth from 'react-firebase-authorize';
 
-// Note all of the below are required but
+// Note all of the below are NOT required but
 // Firebase will default with all these values.
 
 const firebaseConfig = {
@@ -62,7 +62,8 @@ if (!firebase.apps.length)
 
 // Define your react-firebase-authorize configuration here:
 
-const { useIdentity, useRecaptcha, auth } = rfa({
+const { useIdentity, useRecaptcha, auth } = firebaseAuth({
+  firebase,
   enabledProviders: ['google'],
   emailVerificationUrl: process.env.REACT_APP_FIREBASE_EMAIL_VERIFICATION_URL
 });

@@ -1,6 +1,6 @@
 // @ts-check
 
-// import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser';
 import typescript2 from 'rollup-plugin-typescript2';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -26,7 +26,7 @@ function createOutputOptions(options) {
   return {
     banner,
     name: 'reactFirebaseAuthorize',
-    exports: 'auto',
+    exports: 'named',
     sourcemap: true,
     ...options,
   };
@@ -43,37 +43,37 @@ const options = {
       file: './dist/index.js',
       format: 'commonjs'
     }),
-    // createOutputOptions({
-    //   file: './dist/index.cjs',
-    //   format: 'commonjs',
-    // }),
-    // createOutputOptions({
-    //   file: './dist/index.mjs',
-    //   format: 'esm',
-    // }),
-    // createOutputOptions({
-    //   file: './dist/index.esm.js',
-    //   format: 'esm',
-    // }),
-    // createOutputOptions({
-    //   file: './dist/index.umd.js',
-    //   format: 'umd',
-    //   globals: {
-    //     react: 'React',
-    //     'react-dom': 'ReactDOM',
-    //     'firebase': 'firebase'
-    //   }
-    // }),
-    // createOutputOptions({
-    //   file: './dist/index.umd.min.js',
-    //   format: 'umd',
-    //   globals: {
-    //     react: 'React',
-    //     'react-dom': 'ReactDOM',
-    //     'firebase': 'firebase'
-    //   },
-    //   plugins: [terser()],
-    // }),
+    createOutputOptions({
+      file: './dist/index.cjs',
+      format: 'commonjs',
+    }),
+    createOutputOptions({
+      file: './dist/index.mjs',
+      format: 'esm',
+    }),
+    createOutputOptions({
+      file: './dist/index.esm.js',
+      format: 'esm',
+    }),
+    createOutputOptions({
+      file: './dist/index.umd.js',
+      format: 'umd',
+      globals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        'firebase': 'firebase'
+      }
+    }),
+    createOutputOptions({
+      file: './dist/index.umd.min.js',
+      format: 'umd',
+      globals: {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        'firebase': 'firebase'
+      },
+      plugins: [terser()],
+    }),
   ],
   plugins: [
     nodeResolve(),

@@ -3772,4 +3772,4 @@ exports.ACTION_CODES = ACTION_CODES;
 exports.AUTH_DEFAULTS = AUTH_DEFAULTS;
 exports.IS_DEV = IS_DEV;
 exports.default = createAuth;
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.cjs.map

@@ -16,7 +16,7 @@ const IDENTITY_DEFAULTS = {
   }
 }
 
-export function createUseIdentity<K extends Provider>(auth: AuthApi<K>) {
+export function createUseIdentity<K extends Provider>(api: AuthApi<K>) {
 
   const useIdentity = <U extends firebase.UserInfo>(props?: IAuthIdentity<U>) => {
 
@@ -26,14 +26,14 @@ export function createUseIdentity<K extends Provider>(auth: AuthApi<K>) {
     } as Required<IAuthIdentity<U>>;
 
     const { defaultUser } = props;
-    const signInByLink = auth.link.signIn;
-    const signInByProvider = auth.provider.signIn;
-    const signInByPassword = auth.password.signIn;
-    const signInByPhone = auth.phone.signIn;
+    const signInByLink = api.link.signIn;
+    const signInByProvider = api.provider.signIn;
+    const signInByPassword = api.password.signIn;
+    const signInByPhone = api.phone.signIn;
     const user = ensureUser();
 
     function ensureUser() {
-      const user = auth.getStorageUser<U>(defaultUser);
+      const user = api.getStorageUser<U>(defaultUser);
       if (!user.displayName && user.providerId === 'firebase')
         user.displayName = user.phoneNumber;
       user.photoURL = user.photoURL || defaultUser.photoURL;
@@ -56,17 +56,17 @@ export function createUseIdentity<K extends Provider>(auth: AuthApi<K>) {
 
     return {
       get defaultUser() { return IDENTITY_DEFAULTS.defaultUser; },
-      get isAuthenticated() { return auth.isAuthenticated(); },
+      get isAuthenticated() { return api.isAuthenticated(); },
       get user() { return ensureUser(); },
-      get emailLink() { return auth.getStorageEmailLink(); },
+      get emailLink() { return api.getStorageEmailLink(); },
       get avatar() { return getGravatar() },
-      get hasAuthLink() { return auth.hasAuthLink(); },
-      providers: auth.provider.providers,
+      get hasAuthLink() { return api.hasAuthLink(); },
+      providers: api.provider.providers,
       signInByLink,
       signInByProvider,
       signInByPassword,
       signInByPhone,
-      signOut: auth.signOut,
+      signOut: api.signOut,
     };
 
   };

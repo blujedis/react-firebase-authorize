@@ -1,3 +1,4 @@
+import { createAuth } from './main';
 export * from './constants';
 export * from './types';
-export * from './main';
+export default createAuth;

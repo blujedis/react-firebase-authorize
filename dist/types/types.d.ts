@@ -1,7 +1,5 @@
 import type firebase from 'firebase/app';
 import type { AuthModel } from './api/model';
-import type { initProvider } from './api/provider';
-import type { PROVIDERS } from './constants';
 import type { AuthCommon } from './api/common';
 declare class TypeWrapper<K extends Provider> {
     main(options: IAuthOptions<K>): {
@@ -93,14 +91,19 @@ declare class TypeWrapper<K extends Provider> {
 }
 export declare type Firebase = typeof firebase;
 export declare type AuthApi<K extends Provider> = ReturnType<TypeWrapper<K>['main']>;
-export declare type AuthUtils<K extends Provider> = ReturnType<TypeWrapper<K>['utils']>;
-export declare type Providers = typeof PROVIDERS;
+export interface Providers {
+    google: firebase.auth.GoogleAuthProvider;
+    facebook: firebase.auth.FacebookAuthProvider;
+    github: firebase.auth.GithubAuthProvider;
+    twitter: firebase.auth.TwitterAuthProvider;
+    microsoft: firebase.auth.OAuthProvider;
+    yahoo: firebase.auth.OAuthProvider;
+    apple: firebase.auth.OAuthProvider;
+    phone: firebase.auth.GoogleAuthProvider;
+}
 export declare type Provider = keyof Providers;
 export declare type ProviderMap<K extends Provider> = {
-    [P in K]: ReturnType<Providers[K]>;
-};
-export declare type ProviderInstance<K extends Provider> = ReturnType<typeof initProvider> & {
-    providers: ProviderMap<K>;
+    [P in K]: Providers[K];
 };
 export declare type ConfirmAuthCode = <U extends firebase.User>(code: string) => Promise<U>;
 export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'credential'> {
@@ -139,7 +142,7 @@ export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K>
 export interface IAuthLogPayload {
     level: 'log' | 'fatal' | 'error' | 'warn' | 'info' | 'debug';
     message: string;
-    timestamp: number;
+    timestamp?: number;
     stack?: string;
     code?: string;
     params?: Record<string, any>;

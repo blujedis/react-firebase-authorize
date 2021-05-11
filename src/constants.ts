@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import type firebase from 'firebase/app';
 import type { IAuthOptions, IAuthLogPayload } from './types';
 
 export const IS_DEV = process.env.NODE_ENV !== 'production';
@@ -23,15 +23,4 @@ export const AUTH_DEFAULTS: IAuthOptions<any> = {
   databasePersist: false,
   logger: ({ timestamp, level, message }: IAuthLogPayload) => console.log(`[${timestamp}]:${level}`, message),
   globalActionCodes: { ...ACTION_CODES }
-};
-
-export const PROVIDERS = {
-  google: () => new firebase.auth.GoogleAuthProvider(),
-  facebook: () => new firebase.auth.FacebookAuthProvider(),
-  github: () => new firebase.auth.GithubAuthProvider(),
-  twitter: () => new firebase.auth.TwitterAuthProvider(),
-  microsoft: () => new firebase.auth.OAuthProvider('microsoft.com'),
-  yahoo: () => new firebase.auth.OAuthProvider('yahoo.com'),
-  apple: () => new firebase.auth.OAuthProvider('apple.com'),
-  phone: (auth?: firebase.auth.Auth) => new firebase.auth.PhoneAuthProvider(auth)
 };

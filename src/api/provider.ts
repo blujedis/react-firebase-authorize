@@ -1,7 +1,6 @@
 import type firebase from 'firebase/app';
 import { storage } from '../utils/storage';
-import type { Provider, IAuthInitOptions, ProviderMap, IAuthCredential } from '../types';
-import { PROVIDERS } from '../constants';
+import type { Provider, IAuthInitOptions, ProviderMap, IAuthCredential, Providers } from '../types';
 
 type AuthProvider = firebase.auth.AuthProvider;
 
@@ -9,11 +8,25 @@ export function initProvider<K extends Provider>(options: IAuthInitOptions<K>) {
 
   const { userStorageKey, log, model, enabledProviders, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
 
-  const providers: ProviderMap<K> = {} as any;
+  const providers = {} as ProviderMap<K>;
+
+  const PROVIDERS = {
+    google: () => new firebaseInstance.auth.GoogleAuthProvider(),
+    facebook: () => new  firebaseInstance.auth.FacebookAuthProvider(),
+    github: () => new firebaseInstance.auth.GithubAuthProvider(),
+    twitter: () => new firebaseInstance.auth.TwitterAuthProvider(),
+    microsoft: () => new firebaseInstance.auth.OAuthProvider('microsoft.com'),
+    yahoo: () => new firebaseInstance.auth.OAuthProvider('yahoo.com'),
+    apple: () => new firebaseInstance.auth.OAuthProvider('apple.com'),
+    phone: () => new firebaseInstance.auth.PhoneAuthProvider()
+  };
 
   enabledProviders.forEach(k => {
     if (typeof PROVIDERS[k] !== 'undefined') {
-      providers[k] = PROVIDERS[k]() as any;
+      providers[k] = PROVIDERS[k]() as Providers[K];
+    }
+    else {
+      log({ level: 'warn', message: `Provider ${k} is not in known providers [${Object.keys(PROVIDERS).join(', ')}]` });
     }
   });
 
