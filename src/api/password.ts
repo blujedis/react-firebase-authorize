@@ -4,10 +4,9 @@ import type { Provider, IAuthInitOptions, IAuthCredential } from '../types';
 
 export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { userStorageKey, log, model, emailVerificationUrl, globalActionCodes, common, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
+  const { userStorageKey, model, emailVerificationUrl, globalActionCodes, common, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
 
-
-  const { stringifyParams, updateProfile } = common;
+  const { stringifyParams, updateProfile, log } = common;
 
   async function sendVerification(actionCodes?: firebase.auth.ActionCodeSettings) {
 
@@ -85,14 +84,8 @@ export function initPassword<K extends Provider>(options: IAuthInitOptions<K>) {
         .auth()
         .signInWithEmailAndPassword(email, password);
 
-      if (!credential?.user?.emailVerified) {
-
-        // Resend the verification.
-        // credential.user.sendEmailVerification();
-
+      if (!credential?.user?.emailVerified)
         throw new Error(`Email address ${email} has not be verified. Please verify or request reset.`);
-
-      }
 
       return model.handleCredential(credential as IAuthCredential);
 

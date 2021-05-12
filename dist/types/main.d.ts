@@ -18,7 +18,12 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
     model: {
         findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
         create: <T extends firebase.UserInfo>(user: T) => void;
-        update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void;
+        update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void; /**
+         * Signs the user out of Firebase and optionally redirects.
+         * Redirect uses window.location, for async handle after promise is resolved.
+         *
+         * @param redirect a path to redirect to or callback function.
+         */
         handleCredential: (userCredential: IAuthCredential, suppressPersist?: boolean) => Promise<firebase.User>;
     };
     password: {
@@ -37,6 +42,7 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
     phone: {
         signIn: (number: string, verifier: firebase.auth.RecaptchaVerifier) => Promise<(code: string) => Promise<firebase.User>>;
     };
+    providers: import("./types").ProviderMap<K>;
     provider: {
         providers: import("./types").ProviderMap<K>;
         link: {
@@ -48,13 +54,13 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
             (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
         };
     };
-    watchState: (handler?: ((user: firebase.User | null) => void) | undefined) => firebase.Unsubscribe;
+    watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
     unsubscribeWatchState: firebase.Unsubscribe;
     signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
     hasAuthLink: () => boolean;
-    ensureDisplayName: <U extends firebase.UserInfo>(user: U) => U;
-    mapUser: <U_1 extends Record<string, any>>(user: firebase.User | null, extend?: U_1) => (firebase.UserInfo & U_1) | null;
-    isAuthenticated: () => boolean;
+    hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
+    ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
+    mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
     hasStorageUser: () => boolean;
     hasStorageEmailLink: () => boolean;
     getStorageUser: <T_2 extends firebase.UserInfo>(def?: T_2) => T_2;
@@ -63,8 +69,6 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
     setStorageEmailLink: (email: string) => void;
     removeStorageUser: () => void;
     removeStorageEmailLink: () => void;
-    setStorageAuthenticated: () => void;
-    removeStorageAuthenticated: () => void;
 };
 /**
  * Initialize the firebase auth instance exposing methods
@@ -90,7 +94,12 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
         model: {
             findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
             create: <T extends firebase.UserInfo>(user: T) => void;
-            update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void;
+            update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void; /**
+             * Signs the user out of Firebase and optionally redirects.
+             * Redirect uses window.location, for async handle after promise is resolved.
+             *
+             * @param redirect a path to redirect to or callback function.
+             */
             handleCredential: (userCredential: IAuthCredential, suppressPersist?: boolean) => Promise<firebase.User>;
         };
         password: {
@@ -109,6 +118,7 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
         phone: {
             signIn: (number: string, verifier: firebase.auth.RecaptchaVerifier) => Promise<(code: string) => Promise<firebase.User>>;
         };
+        providers: import("./types").ProviderMap<K>;
         provider: {
             providers: import("./types").ProviderMap<K>;
             link: {
@@ -120,13 +130,13 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
                 (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
             };
         };
-        watchState: (handler?: ((user: firebase.User | null) => void) | undefined) => firebase.Unsubscribe;
+        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
         unsubscribeWatchState: firebase.Unsubscribe;
         signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
         hasAuthLink: () => boolean;
-        ensureDisplayName: <U extends firebase.UserInfo>(user: U) => U;
-        mapUser: <U_1 extends Record<string, any>>(user: firebase.User | null, extend?: U_1) => (firebase.UserInfo & U_1) | null;
-        isAuthenticated: () => boolean;
+        hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
+        ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
+        mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
         hasStorageUser: () => boolean;
         hasStorageEmailLink: () => boolean;
         getStorageUser: <T_2 extends firebase.UserInfo>(def?: T_2) => T_2;
@@ -135,18 +145,16 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
         setStorageEmailLink: (email: string) => void;
         removeStorageUser: () => void;
         removeStorageEmailLink: () => void;
-        setStorageAuthenticated: () => void;
-        removeStorageAuthenticated: () => void;
     };
-    useIdentity: <U_2 extends firebase.UserInfo>(props?: import("./types").IAuthIdentity<U_2> | undefined) => {
+    useIdentity: <U_3 extends firebase.UserInfo>(props?: import("./types").IAuthIdentity<U_3> | undefined) => {
         readonly defaultUser: {
             displayName: string;
             photoURL: string;
             email: string;
             uid: string;
         };
-        readonly isAuthenticated: boolean;
-        readonly user: U_2;
+        readonly hasUser: boolean;
+        readonly user: U_3;
         readonly emailLink: string;
         readonly avatar: string;
         readonly hasAuthLink: boolean;

@@ -59,18 +59,14 @@ const options = {
       file: './dist/index.umd.js',
       format: 'umd',
       globals: {
-        react: 'React',
-        //   'react-dom': 'ReactDOM',
-        //   'firebase': 'firebase'
+        react: 'React'
       }
     }),
     createOutputOptions({
       file: './dist/index.umd.min.js',
       format: 'umd',
       globals: {
-        react: 'React',
-        //   'react-dom': 'ReactDOM',
-        //   'firebase': 'firebase'
+        react: 'React'
       },
       plugins: [terser()],
     }),

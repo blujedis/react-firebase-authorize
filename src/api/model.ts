@@ -1,11 +1,9 @@
 import type firebase from 'firebase/app';
-import type { IAuthCredential, IAuthOptions, Provider } from '../types';
+import type { IAuthCredential, IAuthOptions, Provider, AuthModel } from '../types';
 
-export type AuthModel = ReturnType<typeof initModel>;
+let _model: AuthModel<any>;
 
-let _model: AuthModel;
-
-function initModel<K extends Provider>(options: IAuthOptions<K>) {
+export function initModel<K extends Provider>(options: IAuthOptions<K>) {
 
   const { collectionName, updateProps, onAuthCredential, databasePersist, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
 
@@ -85,6 +83,6 @@ function initModel<K extends Provider>(options: IAuthOptions<K>) {
 export function createModel<K extends Provider>(options: IAuthOptions<K>) {
   if (!_model)
     _model = initModel(options);
-  return _model;
+  return _model as AuthModel<K>;
 }
 

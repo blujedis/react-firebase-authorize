@@ -40,8 +40,7 @@
   },
   "dependencies": {
     "md5": "^2.3.0",
-    "query-string": "^7.0.0",
-    "react": "^17.0.2"
+    "query-string": "^7.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^19.0.0",

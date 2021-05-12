@@ -4,7 +4,9 @@ import { storage } from '../utils/storage';
 
 export function initPhone<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { userStorageKey, log, model, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
+  const { userStorageKey, model, common, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
+
+  const { log } = common;
 
   async function signIn(number: string, verifier: firebase.auth.RecaptchaVerifier) {
 

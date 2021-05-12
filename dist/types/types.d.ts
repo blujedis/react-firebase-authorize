@@ -1,6 +1,4 @@
 import type firebase from 'firebase/app';
-import type { AuthModel } from './api/model';
-import type { AuthCommon } from './api/common';
 declare class TypeWrapper<K extends Provider> {
     main(options: IAuthOptions<K>): {
         options: IAuthOptions<K>;
@@ -38,6 +36,7 @@ declare class TypeWrapper<K extends Provider> {
         phone: {
             signIn: (number: string, verifier: firebase.auth.RecaptchaVerifier) => Promise<(code: string) => Promise<firebase.User>>;
         };
+        providers: ProviderMap<K>;
         provider: {
             providers: ProviderMap<K>;
             link: {
@@ -49,48 +48,63 @@ declare class TypeWrapper<K extends Provider> {
                 (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
             };
         };
-        watchState: (handler?: ((user: firebase.User | null) => void) | undefined) => firebase.Unsubscribe;
+        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
         unsubscribeWatchState: firebase.Unsubscribe;
         signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
         hasAuthLink: () => boolean;
-        ensureDisplayName: <U extends firebase.UserInfo>(user: U) => U;
-        mapUser: <U_1 extends Record<string, any>>(user: firebase.User | null, extend?: U_1) => (firebase.UserInfo & U_1) | null;
-        isAuthenticated: () => boolean;
+        hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
+        ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
+        mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
         hasStorageUser: () => boolean;
         hasStorageEmailLink: () => boolean;
         getStorageUser: <T_2 extends firebase.UserInfo>(def?: T_2) => T_2;
         getStorageEmailLink: <T_3 extends string>(def?: T_3) => T_3;
-        setStorageUser: (value: string | number | boolean | Record<string, any> | Date) => void;
+        setStorageUser: (value: string | number | boolean | Date | Record<string, any>) => void;
         setStorageEmailLink: (email: string) => void;
         removeStorageUser: () => void;
         removeStorageEmailLink: () => void;
-        setStorageAuthenticated: () => void;
-        removeStorageAuthenticated: () => void;
     };
-    utils(options: IAuthInitOptions<K>): {
+    common(options: IAuthOptions<K>): {
+        log: {
+            (message: string): void;
+            <E extends Error>(error: E): void;
+            (data: Record<string, any>): void;
+            (type: "log" | "fatal" | "error" | "warn" | "info" | "debug", message: string): void;
+            <E_1 extends Error>(type: "log" | "fatal" | "error" | "warn" | "info" | "debug", error: E_1): void;
+            (type: "log" | "fatal" | "error" | "warn" | "info" | "debug", data: Record<string, any>): void;
+        };
+        providers: ProviderMap<K>;
+        hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
+        signInProvider: <U_1 extends firebase.User>(user: U_1) => Promise<string | null>;
+        getEnabledProviderIDs: () => string[];
         stringifyParams: (params: Record<string, any>) => string;
         hasAuthLink: () => boolean;
         updateProfile: (profile: {
             displayName?: string | undefined;
             photoURL?: string | undefined;
         }) => Promise<boolean>;
-        ensureDisplayName: <U extends firebase.UserInfo>(user: U) => U;
-        mapUser: <U_1 extends Record<string, any>>(user: firebase.User | null, extend?: U_1) => (firebase.UserInfo & U_1) | null;
-        isAuthenticated: () => boolean;
+        ensureDisplayName: <U_2 extends firebase.UserInfo>(user: U_2) => U_2;
+        mapUser: <U_3 extends Record<string, any>>(user: firebase.User | null, extend?: U_3) => (firebase.UserInfo & U_3) | null;
         hasStorageUser: () => boolean;
         hasStorageEmailLink: () => boolean;
         getStorageUser: <T extends firebase.UserInfo>(def?: T) => T;
         getStorageEmailLink: <T_1 extends string>(def?: T_1) => T_1;
-        setStorageUser: (value: string | number | boolean | Record<string, any> | Date) => void;
+        setStorageUser: (value: string | number | boolean | Date | Record<string, any>) => void;
         setStorageEmailLink: (email: string) => void;
         removeStorageUser: () => void;
         removeStorageEmailLink: () => void;
-        setStorageAuthenticated: () => void;
-        removeStorageAuthenticated: () => void;
+    };
+    model(options: IAuthOptions<K>): {
+        findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
+        create: <T extends firebase.UserInfo>(user: T) => void;
+        update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void;
+        handleCredential: (userCredential: IAuthCredential, suppressPersist?: boolean) => Promise<firebase.User>;
     };
 }
 export declare type Firebase = typeof firebase;
 export declare type AuthApi<K extends Provider> = ReturnType<TypeWrapper<K>['main']>;
+export declare type AuthCommon<K extends Provider> = ReturnType<TypeWrapper<K>['common']>;
+export declare type AuthModel<K extends Provider> = ReturnType<TypeWrapper<K>['model']>;
 export interface Providers {
     google: firebase.auth.GoogleAuthProvider;
     facebook: firebase.auth.FacebookAuthProvider;
@@ -103,7 +117,7 @@ export interface Providers {
 }
 export declare type Provider = keyof Providers;
 export declare type ProviderMap<K extends Provider> = {
-    [P in K]: Providers[K];
+    [P in K]: Providers[P];
 };
 export declare type ConfirmAuthCode = <U extends firebase.User>(code: string) => Promise<U>;
 export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'credential'> {
@@ -120,7 +134,6 @@ export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'cre
 interface AuthBaseOptions<K extends Provider> {
     firebase: Firebase;
     enableWatchState?: boolean;
-    isAuthenticatedKey?: string;
     userStorageKey?: string;
     emailStorageLinkKey?: string;
     emailVerificationUrl?: string;
@@ -135,9 +148,10 @@ export interface IAuthOptions<K extends Provider> extends AuthBaseOptions<K> {
     logger?: (payload: IAuthLogPayload) => void;
 }
 export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K> {
-    log: (payload: IAuthLogPayload) => void;
-    model: AuthModel;
-    common: AuthCommon;
+    common: AuthCommon<K>;
+    model: AuthModel<K>;
+    enableLink?: boolean;
+    enablePassword?: boolean;
 }
 export interface IAuthLogPayload {
     level: 'log' | 'fatal' | 'error' | 'warn' | 'info' | 'debug';

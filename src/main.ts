@@ -3,12 +3,10 @@ import { initLink } from './api/link';
 import { initPassword } from './api/password';
 import { initProvider } from './api/provider';
 import { initPhone } from './api/phone';
-import { createLogger } from './utils/logger';
 import { createModel } from './api/model';
 import { createUseIdentity } from './components/useIdentity';
 import { useRecaptcha } from './components/useRecaptcha';
-import { storage } from './utils/storage';
-import type { Provider, IAuthOptions, IAuthInitOptions, IAuthLogPayload, IAuthCredential } from './types';
+import type { Provider, IAuthOptions, IAuthInitOptions, IAuthCredential } from './types';
 import { AUTH_DEFAULTS } from './constants';
 import { createCommon } from './api/common';
 
@@ -22,19 +20,23 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
   // Destructure logger so we can init/pass in initOptions.
   const { logger, ...rest } = options;
 
-  const { userStorageKey, enableWatchState, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
+  const { enableWatchState, firebase: firebaseInstance } = options as Required<IAuthOptions<K>>;
 
   // Initialize helpers/utils
 
   const initOptions = rest as Required<IAuthInitOptions<K>>;
-  const log = createLogger(logger as ((payload: IAuthLogPayload) => void));
+
+  // Create common helpers/utils.
   const common = createCommon(options);
 
   const {
+    log,
+    hasProvider,
+    providers,
     hasAuthLink,
+    signInProvider,
     ensureDisplayName,
     mapUser,
-    isAuthenticated,
     hasStorageUser,
     hasStorageEmailLink,
     getStorageUser,
@@ -42,9 +44,7 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
     setStorageUser,
     setStorageEmailLink,
     removeStorageUser,
-    removeStorageEmailLink,
-    setStorageAuthenticated,
-    removeStorageAuthenticated
+    removeStorageEmailLink
   } = common;
 
   options.onAuthCredential = options.onAuthCredential || ((userCredential: IAuthCredential) => {
@@ -62,7 +62,6 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
 
   // Pass instances to internal initOptions. 
   initOptions.model = model;
-  initOptions.log = log;
   initOptions.common = common;
 
   // Init SignIn Providers.
@@ -82,7 +81,7 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
    */
   function signOut(redirect?: string | (() => void)) {
     return firebaseInstance.auth().signOut().then(() => {
-      storage.remove(userStorageKey);
+      removeStorageUser();
       if (redirect) {
         if (typeof redirect === 'string' && typeof window !== 'undefined')
           window.location.href = redirect;
@@ -98,27 +97,30 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
    * 
    * @param handler optional on change handler to call on state changed.
    */
-  function watchState(handler?: (user: firebase.User | null) => void) {
+  function watchState(handler?: (user: firebase.User | null) => void, signOutRedirect?: string | (() => void)) {
 
-    // signOutRedirect?: string | (() => void)
-
-    const unsubscribe = firebaseInstance.auth().onAuthStateChanged((user) => {
+    const unsubscribe = firebaseInstance.auth().onAuthStateChanged(async (user) => {
 
       if (handler)
         return handler(user);
 
       if (!user) {
         removeStorageUser();
-        removeStorageAuthenticated();
       }
 
-      // else if (user && user.emailVerified === false) {
-      //   removeStorageUser();
-      //   removeStorageAuthenticated();
-      //   signOut(signOutRedirect);
-      // }
-
       else {
+
+        if (user.emailVerified === false) {
+          // Shouldn't really ever hit this but just in case.
+          // NOTE: checking for provider as "phone" always has
+          // email verified of false.
+          const providerId = await signInProvider(user);
+          if (providerId === 'password')  {
+            removeStorageUser();
+            signOut(signOutRedirect);
+            return;
+          }
+        }
 
         // If we have a firebase user but our
         // storage key is null update with the user.
@@ -129,8 +131,6 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
           if (usr)
             setStorageUser(usr);
         }
-
-        setStorageAuthenticated();
 
       }
 
@@ -149,14 +149,15 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
     model,
     password,
     phone,
+    providers,
     provider,
     watchState,
     unsubscribeWatchState,
     signOut,
     hasAuthLink,
+    hasProvider,
     ensureDisplayName,
     mapUser,
-    isAuthenticated,
     hasStorageUser,
     hasStorageEmailLink,
     getStorageUser,
@@ -164,9 +165,7 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
     setStorageUser,
     setStorageEmailLink,
     removeStorageUser,
-    removeStorageEmailLink,
-    setStorageAuthenticated,
-    removeStorageAuthenticated
+    removeStorageEmailLink
   };
 
 

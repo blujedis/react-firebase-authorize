@@ -14,7 +14,6 @@ export const ACTION_CODES: firebase.auth.ActionCodeSettings = {
 export const AUTH_DEFAULTS: IAuthOptions<any> = {
   firebase: null as any,
   enableWatchState: true,
-  isAuthenticatedKey: 'isAuthenticated',
   userStorageKey: 'user',
   emailStorageLinkKey: 'emailLinkSignIn',
   enabledProviders: [],

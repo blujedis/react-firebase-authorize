@@ -1,23 +1,29 @@
 import type firebase from 'firebase/app';
 import { initCommon } from './api/common';
-import type { AuthModel } from './api/model';
+import { initModel } from './api/model';
 import { initApi } from './main';
-import type { AuthCommon } from './api/common';
 
 // Simple hack to ensure proper
-// enabled providers and types.
+// types, temp until move to classes.
 class TypeWrapper<K extends Provider> {
   main(options: IAuthOptions<K>) {
     return initApi<K>(options);
   }
-  utils(options: IAuthInitOptions<K>) {
+  common(options: IAuthOptions<K>) {
     return initCommon<K>(options);
+  }
+  model(options: IAuthOptions<K>) {
+    return initModel<K>(options);
   }
 }
 
 export type Firebase = typeof firebase;
 
 export type AuthApi<K extends Provider> = ReturnType<TypeWrapper<K>['main']>;
+
+export type AuthCommon<K extends Provider> = ReturnType<TypeWrapper<K>['common']>;
+
+export type AuthModel<K extends Provider> = ReturnType<TypeWrapper<K>['model']>;
 
 export interface Providers {
   google: firebase.auth.GoogleAuthProvider,
@@ -31,10 +37,8 @@ export interface Providers {
 }
 
 export type Provider = keyof Providers;
-export type ProviderMap<K extends Provider> = { [P in K]: Providers[K]; };
-// export type ProviderInstance<K extends Provider> = ReturnType<typeof initProvider> & {
-//   providers: ProviderMap<K>;
-// }
+
+export type ProviderMap<K extends Provider> = { [P in K]: Providers[P]; };
 
 export type ConfirmAuthCode = <U extends firebase.User>(code: string) => Promise<U>;
 
@@ -50,7 +54,6 @@ export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'cre
 interface AuthBaseOptions<K extends Provider> {
   firebase: Firebase;
   enableWatchState?: boolean;
-  isAuthenticatedKey?: string;
   userStorageKey?: string;
   emailStorageLinkKey?: string;
   emailVerificationUrl?: string;
@@ -67,9 +70,10 @@ export interface IAuthOptions<K extends Provider> extends AuthBaseOptions<K> {
 }
 
 export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K> {
-  log: (payload: IAuthLogPayload) => void;
-  model: AuthModel;
-  common: AuthCommon;
+  common: AuthCommon<K>;
+  model: AuthModel<K>;
+  enableLink?: boolean;
+  enablePassword?: boolean;
 }
 
 export interface IAuthLogPayload {

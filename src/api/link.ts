@@ -1,12 +1,12 @@
-import firebase from 'firebase/app';
+import type firebase from 'firebase/app';
 import type { Provider, IAuthInitOptions, IAuthCredential } from '../types';
 import { storage } from '../utils/storage';
 
 export function initLink<K extends Provider>(options: IAuthInitOptions<K>) {
 
-  const { emailVerificationUrl, emailStorageLinkKey, log, model, globalActionCodes, common } = options as Required<IAuthInitOptions<K>>;
+  const { emailVerificationUrl, emailStorageLinkKey, model, globalActionCodes, common, firebase: firebaseInstance } = options as Required<IAuthInitOptions<K>>;
 
-  const { stringifyParams, hasAuthLink} = common;
+  const { stringifyParams, hasAuthLink, log } = common;
 
   async function signUp(email: string, params?: Record<string, any>, actionCodes?: firebase.auth.ActionCodeSettings): Promise<boolean> {
 
@@ -32,7 +32,7 @@ export function initLink<K extends Provider>(options: IAuthInitOptions<K>) {
       if (!actionCodes?.url)
         return false;
 
-      await firebase
+      await firebaseInstance
         .auth()
         .sendSignInLinkToEmail(email, actionCodes)
         .then(_ => {
@@ -61,7 +61,7 @@ export function initLink<K extends Provider>(options: IAuthInitOptions<K>) {
 
       storage.remove(emailStorageLinkKey);
 
-      const credential = await firebase.auth()
+      const credential = await firebaseInstance.auth()
         .signInWithEmailLink(email, window.location.href);
 
       return model.handleCredential(credential as IAuthCredential);

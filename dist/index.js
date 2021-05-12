@@ -141,6 +141,870 @@ function __spreadArray(to, from) {
     return to;
 }
 
+function get(key, def) {
+    if (def === void 0) { def = null; }
+    var val = localStorage.getItem(key);
+    if (!val)
+        return def;
+    return JSON.parse(val);
+}
+function has(key) {
+    return !!get(key);
+}
+function set(key, value) {
+    if (value instanceof Date)
+        value = value.toISOString();
+    else
+        value = JSON.stringify(value);
+    localStorage.setItem(key, value);
+}
+function remove(key) {
+    localStorage.removeItem(key);
+}
+function clear() {
+    localStorage.clear();
+}
+var storage = {
+    get: get,
+    set: set,
+    has: has,
+    remove: remove,
+    clear: clear
+};
+
+function initLink(options) {
+    var _a = options, emailVerificationUrl = _a.emailVerificationUrl, emailStorageLinkKey = _a.emailStorageLinkKey, model = _a.model, globalActionCodes = _a.globalActionCodes, common = _a.common, firebaseInstance = _a.firebase;
+    var stringifyParams = common.stringifyParams, hasAuthLink = common.hasAuthLink, log = common.log;
+    function signUp(email, params, actionCodes) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _url, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
+                        // example development: `http://127.0.0.1:3000/signin`
+                        // example production: `https://domain.com/signin`
+                        if (!actionCodes.url) {
+                            _url = emailVerificationUrl;
+                            // Add any supplied params.
+                            if (params)
+                                _url += '?' + stringifyParams(params);
+                            actionCodes.url = _url;
+                        }
+                        if (!(actionCodes === null || actionCodes === void 0 ? void 0 : actionCodes.url))
+                            return [2 /*return*/, false];
+                        return [4 /*yield*/, firebaseInstance
+                                .auth()
+                                .sendSignInLinkToEmail(email, actionCodes)
+                                .then(function (_) {
+                                storage.set(emailStorageLinkKey, email);
+                            })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 2:
+                        err_1 = _a.sent();
+                        log(err_1);
+                        return [2 /*return*/, Promise.reject(err_1)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function signIn(email, params, actionCodes) {
+        return __awaiter(this, void 0, void 0, function () {
+            var isAuthLink, credential, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        isAuthLink = hasAuthLink();
+                        if (!isAuthLink)
+                            return [2 /*return*/, signUp(email, params, actionCodes)];
+                        storage.remove(emailStorageLinkKey);
+                        return [4 /*yield*/, firebaseInstance.auth()
+                                .signInWithEmailLink(email, window.location.href)];
+                    case 1:
+                        credential = _a.sent();
+                        return [2 /*return*/, model.handleCredential(credential)];
+                    case 2:
+                        err_2 = _a.sent();
+                        log(err_2);
+                        return [2 /*return*/, Promise.reject(err_2)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    return {
+        signUp: signUp,
+        signIn: signIn
+    };
+}
+
+function initPassword(options) {
+    var _a = options, userStorageKey = _a.userStorageKey, model = _a.model, emailVerificationUrl = _a.emailVerificationUrl, globalActionCodes = _a.globalActionCodes, common = _a.common, firebaseInstance = _a.firebase;
+    var stringifyParams = common.stringifyParams, updateProfile = common.updateProfile, log = common.log;
+    function sendVerification(actionCodes) {
+        return __awaiter(this, void 0, void 0, function () {
+            var currentUser, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
+                        currentUser = firebaseInstance.auth().currentUser;
+                        if (!currentUser)
+                            return [2 /*return*/, false];
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, currentUser.sendEmailVerification(actionCodes)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 3:
+                        err_1 = _a.sent();
+                        log(err_1);
+                        return [2 /*return*/, Promise.reject(err_1)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function signUp(email, password, params, actionCodes) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _url, credential, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
+                        if (!actionCodes.url) {
+                            _url = emailVerificationUrl;
+                            // Add any supplied params.
+                            if (params)
+                                _url += '?' + stringifyParams(params);
+                            actionCodes.url = _url;
+                        }
+                        if (!(actionCodes === null || actionCodes === void 0 ? void 0 : actionCodes.url))
+                            return [2 /*return*/, false];
+                        return [4 /*yield*/, firebaseInstance
+                                .auth()
+                                .createUserWithEmailAndPassword(email, password)];
+                    case 1:
+                        credential = _a.sent();
+                        if (!credential.user)
+                            return [2 /*return*/, false];
+                        // Send verification
+                        credential.user.sendEmailVerification(actionCodes);
+                        return [2 /*return*/, true];
+                    case 2:
+                        err_2 = _a.sent();
+                        log(err_2);
+                        storage.remove(userStorageKey);
+                        return [2 /*return*/, Promise.reject(err_2)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function signIn(email, password, params, actionCodes) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function () {
+            var methods, credential, err_3;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, firebaseInstance.auth().fetchSignInMethodsForEmail(email)];
+                    case 1:
+                        methods = _b.sent();
+                        if (!methods.includes('password'))
+                            return [2 /*return*/, signUp(email, password, params, actionCodes)];
+                        return [4 /*yield*/, firebaseInstance
+                                .auth()
+                                .signInWithEmailAndPassword(email, password)];
+                    case 2:
+                        credential = _b.sent();
+                        if (!((_a = credential === null || credential === void 0 ? void 0 : credential.user) === null || _a === void 0 ? void 0 : _a.emailVerified))
+                            throw new Error("Email address " + email + " has not be verified. Please verify or request reset.");
+                        return [2 /*return*/, model.handleCredential(credential)];
+                    case 3:
+                        err_3 = _b.sent();
+                        log(err_3);
+                        storage.remove(userStorageKey);
+                        return [2 /*return*/, Promise.reject(err_3)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function sendPasswordReset(email) {
+        return __awaiter(this, void 0, void 0, function () {
+            var err_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, firebaseInstance.auth().sendPasswordResetEmail(email)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 2:
+                        err_4 = _a.sent();
+                        log(err_4);
+                        return [2 /*return*/, Promise.reject(err_4)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function verifyPasswordReset(code) {
+        return __awaiter(this, void 0, void 0, function () {
+            var verifyResult, err_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, firebaseInstance.auth().verifyPasswordResetCode(code)];
+                    case 1:
+                        verifyResult = _a.sent();
+                        return [2 /*return*/, verifyResult];
+                    case 2:
+                        err_5 = _a.sent();
+                        log(err_5);
+                        return [2 /*return*/, Promise.reject(err_5)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function confirmPasswordReset(code, newPassword) {
+        return __awaiter(this, void 0, void 0, function () {
+            var err_6;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, firebaseInstance.auth().confirmPasswordReset(code, newPassword)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 2:
+                        err_6 = _a.sent();
+                        log(err_6);
+                        return [2 /*return*/, Promise.reject(err_6)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function updatePassword(newPassword) {
+        return __awaiter(this, void 0, void 0, function () {
+            var currentUser, err_7;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        currentUser = firebaseInstance.auth().currentUser;
+                        if (!currentUser)
+                            throw new Error("Cannot update password with user of undefined.");
+                        return [4 /*yield*/, currentUser.updatePassword(newPassword)];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, true];
+                    case 2:
+                        err_7 = _a.sent();
+                        log(err_7);
+                        return [2 /*return*/, Promise.reject(err_7)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    return {
+        sendPasswordReset: sendPasswordReset,
+        confirmPasswordReset: confirmPasswordReset,
+        verifyPasswordReset: verifyPasswordReset,
+        updatePassword: updatePassword,
+        sendVerification: sendVerification,
+        updateProfile: updateProfile,
+        signIn: signIn,
+        signUp: signUp
+    };
+}
+
+function initProvider(options) {
+    var _a = options, userStorageKey = _a.userStorageKey, model = _a.model, common = _a.common, enabledProviders = _a.enabledProviders, firebaseInstance = _a.firebase;
+    var providers = common.providers, log = common.log;
+    function getProvider(providerId) {
+        var provider = providers[providerId];
+        if (!provider || !enabledProviders.includes(providerId))
+            throw new Error("Cannot signIn using unknown or disabled provider " + providerId + ".");
+        return provider;
+    }
+    function signIn(providerId, withRedirect) {
+        return __awaiter(this, void 0, void 0, function () {
+            var provider, credential, err_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (withRedirect)
+                            console.log(withRedirect);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
+                        return [4 /*yield*/, firebaseInstance
+                                .auth()
+                                .signInWithPopup(provider)];
+                    case 2:
+                        credential = _a.sent();
+                        return [2 /*return*/, model.handleCredential(credential)];
+                    case 3:
+                        err_1 = _a.sent();
+                        log(err_1);
+                        storage.remove(userStorageKey);
+                        return [2 /*return*/, Promise.reject(err_1)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    function link(providerId) {
+        return __awaiter(this, void 0, void 0, function () {
+            var provider, currentUser, credential, err_2;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 3, , 4]);
+                        provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
+                        return [4 /*yield*/, firebaseInstance.auth().currentUser];
+                    case 1:
+                        currentUser = _a.sent();
+                        if (!currentUser)
+                            throw new Error("Failed to link " + provider.providerId + " using user of undefined.");
+                        return [4 /*yield*/, currentUser.linkWithPopup(provider)];
+                    case 2:
+                        credential = _a.sent();
+                        return [2 /*return*/, model.handleCredential(credential, true)];
+                    case 3:
+                        err_2 = _a.sent();
+                        log(err_2);
+                        return [2 /*return*/, Promise.reject(err_2)];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    return {
+        providers: providers,
+        link: link,
+        signIn: signIn
+    };
+}
+
+function initPhone(options) {
+    var _a = options, userStorageKey = _a.userStorageKey, model = _a.model, common = _a.common, firebaseInstance = _a.firebase;
+    var log = common.log;
+    function signIn(number, verifier) {
+        return __awaiter(this, void 0, void 0, function () {
+            var instance_1, handleConfirm, err_1;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, firebaseInstance
+                                .auth()
+                                .signInWithPhoneNumber(number, verifier)];
+                    case 1:
+                        instance_1 = _a.sent();
+                        handleConfirm = function (code) { return __awaiter(_this, void 0, void 0, function () {
+                            var credential;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0: return [4 /*yield*/, instance_1.confirm(code)];
+                                    case 1:
+                                        credential = _a.sent();
+                                        return [2 /*return*/, model.handleCredential(credential)];
+                                }
+                            });
+                        }); };
+                        return [2 /*return*/, handleConfirm];
+                    case 2:
+                        err_1 = _a.sent();
+                        log(err_1);
+                        storage.remove(userStorageKey);
+                        return [2 /*return*/, Promise.reject(err_1)];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    }
+    return {
+        signIn: signIn
+    };
+}
+
+var _model;
+function initModel(options) {
+    var _a = options, collectionName = _a.collectionName, updateProps = _a.updateProps, onAuthCredential = _a.onAuthCredential, databasePersist = _a.databasePersist, firebaseInstance = _a.firebase;
+    var ref = firebaseInstance.firestore().collection(collectionName);
+    /**
+     * Handles the login credential, normalizes and persists to database if enabled.
+     * Suppress may be called by callee preventing update such as an unverified user/email.
+     *
+     * @param userCredential the firebase credential upon sign in.
+     * @param suppressPersist when true prevent database persistence.
+     */
+    function handleCredential(userCredential, suppressPersist) {
+        var _a;
+        if (suppressPersist === void 0) { suppressPersist = false; }
+        return __awaiter(this, void 0, void 0, function () {
+            var user, dbUser, isNew;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        user = userCredential.user;
+                        dbUser = user;
+                        isNew = (_a = userCredential === null || userCredential === void 0 ? void 0 : userCredential.additionalUserInfo) === null || _a === void 0 ? void 0 : _a.isNewUser;
+                        if (!onAuthCredential) return [3 /*break*/, 2];
+                        return [4 /*yield*/, onAuthCredential(userCredential)];
+                    case 1:
+                        dbUser = (_b.sent());
+                        _b.label = 2;
+                    case 2:
+                        if (!(databasePersist && !suppressPersist)) return [3 /*break*/, 6];
+                        if (!isNew) return [3 /*break*/, 4];
+                        return [4 /*yield*/, create(dbUser)];
+                    case 3:
+                        _b.sent();
+                        return [3 /*break*/, 6];
+                    case 4: return [4 /*yield*/, update(dbUser)];
+                    case 5:
+                        _b.sent();
+                        _b.label = 6;
+                    case 6: return [2 /*return*/, user];
+                }
+            });
+        });
+    }
+    function findById(uid) {
+        return ref.doc(uid).get();
+    }
+    function create(user) {
+        if (!user.uid)
+            throw new Error("Failed to create user with \"uid\" of undefined.");
+        ref.doc(user.uid).set(user);
+    }
+    function update(user) {
+        if (!user.uid)
+            throw new Error("Failed to update user with \"uid\" of undefined.");
+        if (!updateProps.length)
+            return;
+        var obj = updateProps.reduce(function (a, key) {
+            if (typeof user[key] !== 'undefined')
+                a[key] = user[key];
+            return key;
+        }, {});
+        ref.doc(user.uid).update(obj);
+    }
+    return {
+        findById: findById,
+        create: create,
+        update: update,
+        handleCredential: handleCredential
+    };
+}
+function createModel(options) {
+    if (!_model)
+        _model = initModel(options);
+    return _model;
+}
+
+var md5$1 = {exports: {}};
+
+var crypt = {exports: {}};
+
+(function() {
+  var base64map
+      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+
+  crypt$1 = {
+    // Bit-wise rotation left
+    rotl: function(n, b) {
+      return (n << b) | (n >>> (32 - b));
+    },
+
+    // Bit-wise rotation right
+    rotr: function(n, b) {
+      return (n << (32 - b)) | (n >>> b);
+    },
+
+    // Swap big-endian to little-endian and vice versa
+    endian: function(n) {
+      // If number given, swap endian
+      if (n.constructor == Number) {
+        return crypt$1.rotl(n, 8) & 0x00FF00FF | crypt$1.rotl(n, 24) & 0xFF00FF00;
+      }
+
+      // Else, assume array and swap all items
+      for (var i = 0; i < n.length; i++)
+        n[i] = crypt$1.endian(n[i]);
+      return n;
+    },
+
+    // Generate an array of any length of random bytes
+    randomBytes: function(n) {
+      for (var bytes = []; n > 0; n--)
+        bytes.push(Math.floor(Math.random() * 256));
+      return bytes;
+    },
+
+    // Convert a byte array to big-endian 32-bit words
+    bytesToWords: function(bytes) {
+      for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+        words[b >>> 5] |= bytes[i] << (24 - b % 32);
+      return words;
+    },
+
+    // Convert big-endian 32-bit words to a byte array
+    wordsToBytes: function(words) {
+      for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a hex string
+    bytesToHex: function(bytes) {
+      for (var hex = [], i = 0; i < bytes.length; i++) {
+        hex.push((bytes[i] >>> 4).toString(16));
+        hex.push((bytes[i] & 0xF).toString(16));
+      }
+      return hex.join('');
+    },
+
+    // Convert a hex string to a byte array
+    hexToBytes: function(hex) {
+      for (var bytes = [], c = 0; c < hex.length; c += 2)
+        bytes.push(parseInt(hex.substr(c, 2), 16));
+      return bytes;
+    },
+
+    // Convert a byte array to a base-64 string
+    bytesToBase64: function(bytes) {
+      for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+        for (var j = 0; j < 4; j++)
+          if (i * 8 + j * 6 <= bytes.length * 8)
+            base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+          else
+            base64.push('=');
+      }
+      return base64.join('');
+    },
+
+    // Convert a base-64 string to a byte array
+    base64ToBytes: function(base64) {
+      // Remove non-base-64 characters
+      base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+      for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
+          imod4 = ++i % 4) {
+        if (imod4 == 0) continue;
+        bytes.push(((base64map.indexOf(base64.charAt(i - 1))
+            & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
+            | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+      }
+      return bytes;
+    }
+  };
+
+  crypt.exports = crypt$1;
+})();
+
+var charenc = {
+  // UTF-8 encoding
+  utf8: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
+    }
+  },
+
+  // Binary encoding
+  bin: {
+    // Convert a string to a byte array
+    stringToBytes: function(str) {
+      for (var bytes = [], i = 0; i < str.length; i++)
+        bytes.push(str.charCodeAt(i) & 0xFF);
+      return bytes;
+    },
+
+    // Convert a byte array to a string
+    bytesToString: function(bytes) {
+      for (var str = [], i = 0; i < bytes.length; i++)
+        str.push(String.fromCharCode(bytes[i]));
+      return str.join('');
+    }
+  }
+};
+
+var charenc_1 = charenc;
+
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
+// The _isBuffer check is for Safari 5-7 support, because it's missing
+// Object.prototype.constructor. Remove this eventually
+var isBuffer_1 = function (obj) {
+  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+};
+
+function isBuffer (obj) {
+  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+}
+
+// For Node v0.10 support. Remove this eventually.
+function isSlowBuffer (obj) {
+  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+}
+
+(function(){
+  var crypt$1 = crypt.exports,
+      utf8 = charenc_1.utf8,
+      isBuffer = isBuffer_1,
+      bin = charenc_1.bin,
+
+  // The core
+  md5 = function (message, options) {
+    // Convert to byte array
+    if (message.constructor == String)
+      if (options && options.encoding === 'binary')
+        message = bin.stringToBytes(message);
+      else
+        message = utf8.stringToBytes(message);
+    else if (isBuffer(message))
+      message = Array.prototype.slice.call(message, 0);
+    else if (!Array.isArray(message) && message.constructor !== Uint8Array)
+      message = message.toString();
+    // else, assume byte array already
+
+    var m = crypt$1.bytesToWords(message),
+        l = message.length * 8,
+        a =  1732584193,
+        b = -271733879,
+        c = -1732584194,
+        d =  271733878;
+
+    // Swap endian
+    for (var i = 0; i < m.length; i++) {
+      m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+             ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
+    }
+
+    // Padding
+    m[l >>> 5] |= 0x80 << (l % 32);
+    m[(((l + 64) >>> 9) << 4) + 14] = l;
+
+    // Method shortcuts
+    var FF = md5._ff,
+        GG = md5._gg,
+        HH = md5._hh,
+        II = md5._ii;
+
+    for (var i = 0; i < m.length; i += 16) {
+
+      var aa = a,
+          bb = b,
+          cc = c,
+          dd = d;
+
+      a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
+      d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
+      c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
+      b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
+      a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
+      d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
+      c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
+      b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
+      a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
+      d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
+      c = FF(c, d, a, b, m[i+10], 17, -42063);
+      b = FF(b, c, d, a, m[i+11], 22, -1990404162);
+      a = FF(a, b, c, d, m[i+12],  7,  1804603682);
+      d = FF(d, a, b, c, m[i+13], 12, -40341101);
+      c = FF(c, d, a, b, m[i+14], 17, -1502002290);
+      b = FF(b, c, d, a, m[i+15], 22,  1236535329);
+
+      a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
+      d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
+      c = GG(c, d, a, b, m[i+11], 14,  643717713);
+      b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
+      a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
+      d = GG(d, a, b, c, m[i+10],  9,  38016083);
+      c = GG(c, d, a, b, m[i+15], 14, -660478335);
+      b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
+      a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
+      d = GG(d, a, b, c, m[i+14],  9, -1019803690);
+      c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
+      b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
+      a = GG(a, b, c, d, m[i+13],  5, -1444681467);
+      d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
+      c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
+      b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+
+      a = HH(a, b, c, d, m[i+ 5],  4, -378558);
+      d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
+      c = HH(c, d, a, b, m[i+11], 16,  1839030562);
+      b = HH(b, c, d, a, m[i+14], 23, -35309556);
+      a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
+      d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
+      c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
+      b = HH(b, c, d, a, m[i+10], 23, -1094730640);
+      a = HH(a, b, c, d, m[i+13],  4,  681279174);
+      d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
+      c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
+      b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
+      a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
+      d = HH(d, a, b, c, m[i+12], 11, -421815835);
+      c = HH(c, d, a, b, m[i+15], 16,  530742520);
+      b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+
+      a = II(a, b, c, d, m[i+ 0],  6, -198630844);
+      d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
+      c = II(c, d, a, b, m[i+14], 15, -1416354905);
+      b = II(b, c, d, a, m[i+ 5], 21, -57434055);
+      a = II(a, b, c, d, m[i+12],  6,  1700485571);
+      d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
+      c = II(c, d, a, b, m[i+10], 15, -1051523);
+      b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
+      a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
+      d = II(d, a, b, c, m[i+15], 10, -30611744);
+      c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
+      b = II(b, c, d, a, m[i+13], 21,  1309151649);
+      a = II(a, b, c, d, m[i+ 4],  6, -145523070);
+      d = II(d, a, b, c, m[i+11], 10, -1120210379);
+      c = II(c, d, a, b, m[i+ 2], 15,  718787259);
+      b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+
+      a = (a + aa) >>> 0;
+      b = (b + bb) >>> 0;
+      c = (c + cc) >>> 0;
+      d = (d + dd) >>> 0;
+    }
+
+    return crypt$1.endian([a, b, c, d]);
+  };
+
+  // Auxiliary functions
+  md5._ff  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._gg  = function (a, b, c, d, x, s, t) {
+    var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._hh  = function (a, b, c, d, x, s, t) {
+    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+  md5._ii  = function (a, b, c, d, x, s, t) {
+    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+    return ((n << s) | (n >>> (32 - s))) + b;
+  };
+
+  // Package private blocksize
+  md5._blocksize = 16;
+  md5._digestsize = 16;
+
+  md5$1.exports = function (message, options) {
+    if (message === undefined || message === null)
+      throw new Error('Illegal argument ' + message);
+
+    var digestbytes = crypt$1.wordsToBytes(md5(message, options));
+    return options && options.asBytes ? digestbytes :
+        options && options.asString ? bin.bytesToString(digestbytes) :
+        crypt$1.bytesToHex(digestbytes);
+  };
+
+})();
+
+var md5 = md5$1.exports;
+
+/**
+ * Please update the "photoURL" with your own
+ * locally hosted icon, this is only used as
+ * an initial example.
+ */
+var IDENTITY_DEFAULTS = {
+    defaultUser: {
+        displayName: 'Guest',
+        photoURL: 'https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png',
+        email: '',
+        uid: '-1',
+    }
+};
+function createUseIdentity(api) {
+    var useIdentity = function (props) {
+        props = __assign(__assign({}, IDENTITY_DEFAULTS), props);
+        var defaultUser = props.defaultUser;
+        var signInByLink = api.link.signIn;
+        var signInByProvider = api.provider.signIn;
+        var signInByPassword = api.password.signIn;
+        var signInByPhone = api.phone.signIn;
+        var user = ensureUser();
+        function ensureUser() {
+            var user = api.getStorageUser(defaultUser);
+            if (!user.displayName && user.providerId === 'firebase')
+                user.displayName = user.phoneNumber;
+            user.photoURL = user.photoURL || defaultUser.photoURL;
+            return user;
+        }
+        /**
+         * Gets a gravatar based on email address.
+         *
+         * @param email the email address to get gravatar for.
+         * @param size the size of the gravatar.
+         */
+        function getGravatar(email, size) {
+            if (size === void 0) { size = 96; }
+            email = email || user.email || '';
+            if (!email)
+                return IDENTITY_DEFAULTS.defaultUser.photoURL;
+            var hash = md5(email.trim().toLowerCase());
+            return "https://www.gravatar.com/avatar/" + hash + "?s=" + size + "&r=g&d=mm";
+        }
+        return {
+            get defaultUser() { return IDENTITY_DEFAULTS.defaultUser; },
+            get hasUser() { return api.hasStorageUser(); },
+            get user() { return ensureUser(); },
+            get emailLink() { return api.getStorageEmailLink(); },
+            get avatar() { return getGravatar(); },
+            get hasAuthLink() { return api.hasAuthLink(); },
+            providers: api.provider.providers,
+            signInByLink: signInByLink,
+            signInByProvider: signInByProvider,
+            signInByPassword: signInByPassword,
+            signInByPhone: signInByPhone,
+            signOut: api.signOut,
+        };
+    };
+    return useIdentity;
+}
+
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -1968,941 +2832,6 @@ var version = "8.5.0";
  */
 firebase$1.registerVersion(name, version, 'app');
 
-function get(key, def) {
-    if (def === void 0) { def = null; }
-    var val = localStorage.getItem(key);
-    if (!val)
-        return def;
-    return JSON.parse(val);
-}
-function has(key) {
-    return !!get(key);
-}
-function set(key, value) {
-    if (value instanceof Date)
-        value = value.toISOString();
-    else
-        value = JSON.stringify(value);
-    localStorage.setItem(key, value);
-}
-function remove(key) {
-    localStorage.removeItem(key);
-}
-function clear() {
-    localStorage.clear();
-}
-var storage = {
-    get: get,
-    set: set,
-    has: has,
-    remove: remove,
-    clear: clear
-};
-
-function initLink(options) {
-    var _a = options, emailVerificationUrl = _a.emailVerificationUrl, emailStorageLinkKey = _a.emailStorageLinkKey, log = _a.log, model = _a.model, globalActionCodes = _a.globalActionCodes, common = _a.common;
-    var stringifyParams = common.stringifyParams, hasAuthLink = common.hasAuthLink;
-    function signUp(email, params, actionCodes) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _url, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
-                        // example development: `http://127.0.0.1:3000/signin`
-                        // example production: `https://domain.com/signin`
-                        if (!actionCodes.url) {
-                            _url = emailVerificationUrl;
-                            // Add any supplied params.
-                            if (params)
-                                _url += '?' + stringifyParams(params);
-                            actionCodes.url = _url;
-                        }
-                        if (!(actionCodes === null || actionCodes === void 0 ? void 0 : actionCodes.url))
-                            return [2 /*return*/, false];
-                        return [4 /*yield*/, firebase$1
-                                .auth()
-                                .sendSignInLinkToEmail(email, actionCodes)
-                                .then(function (_) {
-                                storage.set(emailStorageLinkKey, email);
-                            })];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 2:
-                        err_1 = _a.sent();
-                        log(err_1);
-                        return [2 /*return*/, Promise.reject(err_1)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function signIn(email, params, actionCodes) {
-        return __awaiter(this, void 0, void 0, function () {
-            var isAuthLink, credential, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        isAuthLink = hasAuthLink();
-                        if (!isAuthLink)
-                            return [2 /*return*/, signUp(email, params, actionCodes)];
-                        storage.remove(emailStorageLinkKey);
-                        return [4 /*yield*/, firebase$1.auth()
-                                .signInWithEmailLink(email, window.location.href)];
-                    case 1:
-                        credential = _a.sent();
-                        return [2 /*return*/, model.handleCredential(credential)];
-                    case 2:
-                        err_2 = _a.sent();
-                        log(err_2);
-                        return [2 /*return*/, Promise.reject(err_2)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    return {
-        signUp: signUp,
-        signIn: signIn
-    };
-}
-
-function initPassword(options) {
-    var _a = options, userStorageKey = _a.userStorageKey, log = _a.log, model = _a.model, emailVerificationUrl = _a.emailVerificationUrl, globalActionCodes = _a.globalActionCodes, common = _a.common, firebaseInstance = _a.firebase;
-    var stringifyParams = common.stringifyParams, updateProfile = common.updateProfile;
-    function sendVerification(actionCodes) {
-        return __awaiter(this, void 0, void 0, function () {
-            var currentUser, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
-                        currentUser = firebaseInstance.auth().currentUser;
-                        if (!currentUser)
-                            return [2 /*return*/, false];
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, currentUser.sendEmailVerification(actionCodes)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 3:
-                        err_1 = _a.sent();
-                        log(err_1);
-                        return [2 /*return*/, Promise.reject(err_1)];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function signUp(email, password, params, actionCodes) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _url, credential, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        actionCodes = __assign(__assign({}, globalActionCodes), actionCodes);
-                        if (!actionCodes.url) {
-                            _url = emailVerificationUrl;
-                            // Add any supplied params.
-                            if (params)
-                                _url += '?' + stringifyParams(params);
-                            actionCodes.url = _url;
-                        }
-                        if (!(actionCodes === null || actionCodes === void 0 ? void 0 : actionCodes.url))
-                            return [2 /*return*/, false];
-                        return [4 /*yield*/, firebaseInstance
-                                .auth()
-                                .createUserWithEmailAndPassword(email, password)];
-                    case 1:
-                        credential = _a.sent();
-                        if (!credential.user)
-                            return [2 /*return*/, false];
-                        // Send verification
-                        credential.user.sendEmailVerification(actionCodes);
-                        return [2 /*return*/, true];
-                    case 2:
-                        err_2 = _a.sent();
-                        log(err_2);
-                        storage.remove(userStorageKey);
-                        return [2 /*return*/, Promise.reject(err_2)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function signIn(email, password, params, actionCodes) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function () {
-            var methods, credential, err_3;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, firebaseInstance.auth().fetchSignInMethodsForEmail(email)];
-                    case 1:
-                        methods = _b.sent();
-                        if (!methods.includes('password'))
-                            return [2 /*return*/, signUp(email, password, params, actionCodes)];
-                        return [4 /*yield*/, firebaseInstance
-                                .auth()
-                                .signInWithEmailAndPassword(email, password)];
-                    case 2:
-                        credential = _b.sent();
-                        if (!((_a = credential === null || credential === void 0 ? void 0 : credential.user) === null || _a === void 0 ? void 0 : _a.emailVerified)) {
-                            // Resend the verification.
-                            // credential.user.sendEmailVerification();
-                            throw new Error("Email address " + email + " has not be verified. Please verify or request reset.");
-                        }
-                        return [2 /*return*/, model.handleCredential(credential)];
-                    case 3:
-                        err_3 = _b.sent();
-                        log(err_3);
-                        storage.remove(userStorageKey);
-                        return [2 /*return*/, Promise.reject(err_3)];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function sendPasswordReset(email) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_4;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, firebaseInstance.auth().sendPasswordResetEmail(email)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 2:
-                        err_4 = _a.sent();
-                        log(err_4);
-                        return [2 /*return*/, Promise.reject(err_4)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function verifyPasswordReset(code) {
-        return __awaiter(this, void 0, void 0, function () {
-            var verifyResult, err_5;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, firebaseInstance.auth().verifyPasswordResetCode(code)];
-                    case 1:
-                        verifyResult = _a.sent();
-                        return [2 /*return*/, verifyResult];
-                    case 2:
-                        err_5 = _a.sent();
-                        log(err_5);
-                        return [2 /*return*/, Promise.reject(err_5)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function confirmPasswordReset(code, newPassword) {
-        return __awaiter(this, void 0, void 0, function () {
-            var err_6;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, firebaseInstance.auth().confirmPasswordReset(code, newPassword)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 2:
-                        err_6 = _a.sent();
-                        log(err_6);
-                        return [2 /*return*/, Promise.reject(err_6)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function updatePassword(newPassword) {
-        return __awaiter(this, void 0, void 0, function () {
-            var currentUser, err_7;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        currentUser = firebaseInstance.auth().currentUser;
-                        if (!currentUser)
-                            throw new Error("Cannot update password with user of undefined.");
-                        return [4 /*yield*/, currentUser.updatePassword(newPassword)];
-                    case 1:
-                        _a.sent();
-                        return [2 /*return*/, true];
-                    case 2:
-                        err_7 = _a.sent();
-                        log(err_7);
-                        return [2 /*return*/, Promise.reject(err_7)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    return {
-        sendPasswordReset: sendPasswordReset,
-        confirmPasswordReset: confirmPasswordReset,
-        verifyPasswordReset: verifyPasswordReset,
-        updatePassword: updatePassword,
-        sendVerification: sendVerification,
-        updateProfile: updateProfile,
-        signIn: signIn,
-        signUp: signUp
-    };
-}
-
-function initProvider(options) {
-    var _a = options, userStorageKey = _a.userStorageKey, log = _a.log, model = _a.model, enabledProviders = _a.enabledProviders, firebaseInstance = _a.firebase;
-    var providers = {};
-    var PROVIDERS = {
-        google: function () { return new firebaseInstance.auth.GoogleAuthProvider(); },
-        facebook: function () { return new firebaseInstance.auth.FacebookAuthProvider(); },
-        github: function () { return new firebaseInstance.auth.GithubAuthProvider(); },
-        twitter: function () { return new firebaseInstance.auth.TwitterAuthProvider(); },
-        microsoft: function () { return new firebaseInstance.auth.OAuthProvider('microsoft.com'); },
-        yahoo: function () { return new firebaseInstance.auth.OAuthProvider('yahoo.com'); },
-        apple: function () { return new firebaseInstance.auth.OAuthProvider('apple.com'); },
-        phone: function () { return new firebaseInstance.auth.PhoneAuthProvider(); }
-    };
-    enabledProviders.forEach(function (k) {
-        if (typeof PROVIDERS[k] !== 'undefined') {
-            providers[k] = PROVIDERS[k]();
-        }
-        else {
-            log({ level: 'warn', message: "Provider " + k + " is not in known providers [" + Object.keys(PROVIDERS).join(', ') + "]" });
-        }
-    });
-    function getProvider(providerId) {
-        var provider = providers[providerId];
-        if (!provider || !enabledProviders.includes(providerId))
-            throw new Error("Cannot signIn using unknown or disabled provider " + providerId + ".");
-        return provider;
-    }
-    function signIn(providerId, withRedirect) {
-        return __awaiter(this, void 0, void 0, function () {
-            var provider, credential, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (withRedirect)
-                            console.log(withRedirect);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
-                        return [4 /*yield*/, firebaseInstance
-                                .auth()
-                                .signInWithPopup(provider)];
-                    case 2:
-                        credential = _a.sent();
-                        return [2 /*return*/, model.handleCredential(credential)];
-                    case 3:
-                        err_1 = _a.sent();
-                        log(err_1);
-                        storage.remove(userStorageKey);
-                        return [2 /*return*/, Promise.reject(err_1)];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    function link(providerId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var provider, currentUser, credential, err_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 3, , 4]);
-                        provider = typeof providerId === 'string' ? getProvider(providerId) : providerId;
-                        return [4 /*yield*/, firebaseInstance.auth().currentUser];
-                    case 1:
-                        currentUser = _a.sent();
-                        if (!currentUser)
-                            throw new Error("Failed to link " + provider.providerId + " using user of undefined.");
-                        return [4 /*yield*/, currentUser.linkWithPopup(provider)];
-                    case 2:
-                        credential = _a.sent();
-                        return [2 /*return*/, model.handleCredential(credential, true)];
-                    case 3:
-                        err_2 = _a.sent();
-                        log(err_2);
-                        return [2 /*return*/, Promise.reject(err_2)];
-                    case 4: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    return {
-        providers: providers,
-        link: link,
-        signIn: signIn
-    };
-}
-
-function initPhone(options) {
-    var _a = options, userStorageKey = _a.userStorageKey, log = _a.log, model = _a.model, firebaseInstance = _a.firebase;
-    function signIn(number, verifier) {
-        return __awaiter(this, void 0, void 0, function () {
-            var instance_1, handleConfirm, err_1;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        return [4 /*yield*/, firebaseInstance
-                                .auth()
-                                .signInWithPhoneNumber(number, verifier)];
-                    case 1:
-                        instance_1 = _a.sent();
-                        handleConfirm = function (code) { return __awaiter(_this, void 0, void 0, function () {
-                            var credential;
-                            return __generator(this, function (_a) {
-                                switch (_a.label) {
-                                    case 0: return [4 /*yield*/, instance_1.confirm(code)];
-                                    case 1:
-                                        credential = _a.sent();
-                                        return [2 /*return*/, model.handleCredential(credential)];
-                                }
-                            });
-                        }); };
-                        return [2 /*return*/, handleConfirm];
-                    case 2:
-                        err_1 = _a.sent();
-                        log(err_1);
-                        storage.remove(userStorageKey);
-                        return [2 /*return*/, Promise.reject(err_1)];
-                    case 3: return [2 /*return*/];
-                }
-            });
-        });
-    }
-    return {
-        signIn: signIn
-    };
-}
-
-var _logger;
-/**
-   * Converts an error to object literal.
-   *
-   * @param err the error to convert to object
-   */
-function serializeError(err) {
-    if (!(err instanceof Error))
-        return {};
-    var result = Object.getOwnPropertyNames(err).reduce(function (a, c) {
-        a[c] = err[c];
-        return a;
-    }, {});
-    if (err.name && !result.name)
-        result.name = err.name;
-    return result;
-}
-function initLogger(logger) {
-    function log(type, value) {
-        var payload;
-        if (type instanceof Error) {
-            value = serializeError(type);
-            type = 'error';
-            value.level = 'error';
-        }
-        else if (type === 'string' && !['fatal', 'error', 'warn', 'info', 'debug'].includes(type)) {
-            value = {
-                level: 'log',
-                message: type
-            };
-            type = '';
-        }
-        else if (typeof type === 'object') {
-            value = type;
-            type = '';
-        }
-        type = type || 'log';
-        payload = value;
-        payload.level = payload.level || type;
-        payload.message = payload.message || '';
-        payload.timestamp = Date.now();
-        logger(payload);
-    }
-    return log;
-}
-function createLogger(logger) {
-    if (!_logger)
-        _logger = initLogger(logger);
-    return _logger;
-}
-
-var _model;
-function initModel(options) {
-    var _a = options, collectionName = _a.collectionName, updateProps = _a.updateProps, onAuthCredential = _a.onAuthCredential, databasePersist = _a.databasePersist, firebaseInstance = _a.firebase;
-    var ref = firebaseInstance.firestore().collection(collectionName);
-    /**
-     * Handles the login credential, normalizes and persists to database if enabled.
-     * Suppress may be called by callee preventing update such as an unverified user/email.
-     *
-     * @param userCredential the firebase credential upon sign in.
-     * @param suppressPersist when true prevent database persistence.
-     */
-    function handleCredential(userCredential, suppressPersist) {
-        var _a;
-        if (suppressPersist === void 0) { suppressPersist = false; }
-        return __awaiter(this, void 0, void 0, function () {
-            var user, dbUser, isNew;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        user = userCredential.user;
-                        dbUser = user;
-                        isNew = (_a = userCredential === null || userCredential === void 0 ? void 0 : userCredential.additionalUserInfo) === null || _a === void 0 ? void 0 : _a.isNewUser;
-                        if (!onAuthCredential) return [3 /*break*/, 2];
-                        return [4 /*yield*/, onAuthCredential(userCredential)];
-                    case 1:
-                        dbUser = (_b.sent());
-                        _b.label = 2;
-                    case 2:
-                        if (!(databasePersist && !suppressPersist)) return [3 /*break*/, 6];
-                        if (!isNew) return [3 /*break*/, 4];
-                        return [4 /*yield*/, create(dbUser)];
-                    case 3:
-                        _b.sent();
-                        return [3 /*break*/, 6];
-                    case 4: return [4 /*yield*/, update(dbUser)];
-                    case 5:
-                        _b.sent();
-                        _b.label = 6;
-                    case 6: return [2 /*return*/, user];
-                }
-            });
-        });
-    }
-    function findById(uid) {
-        return ref.doc(uid).get();
-    }
-    function create(user) {
-        if (!user.uid)
-            throw new Error("Failed to create user with \"uid\" of undefined.");
-        ref.doc(user.uid).set(user);
-    }
-    function update(user) {
-        if (!user.uid)
-            throw new Error("Failed to update user with \"uid\" of undefined.");
-        if (!updateProps.length)
-            return;
-        var obj = updateProps.reduce(function (a, key) {
-            if (typeof user[key] !== 'undefined')
-                a[key] = user[key];
-            return key;
-        }, {});
-        ref.doc(user.uid).update(obj);
-    }
-    return {
-        findById: findById,
-        create: create,
-        update: update,
-        handleCredential: handleCredential
-    };
-}
-function createModel(options) {
-    if (!_model)
-        _model = initModel(options);
-    return _model;
-}
-
-var md5$1 = {exports: {}};
-
-var crypt = {exports: {}};
-
-(function() {
-  var base64map
-      = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-
-  crypt$1 = {
-    // Bit-wise rotation left
-    rotl: function(n, b) {
-      return (n << b) | (n >>> (32 - b));
-    },
-
-    // Bit-wise rotation right
-    rotr: function(n, b) {
-      return (n << (32 - b)) | (n >>> b);
-    },
-
-    // Swap big-endian to little-endian and vice versa
-    endian: function(n) {
-      // If number given, swap endian
-      if (n.constructor == Number) {
-        return crypt$1.rotl(n, 8) & 0x00FF00FF | crypt$1.rotl(n, 24) & 0xFF00FF00;
-      }
-
-      // Else, assume array and swap all items
-      for (var i = 0; i < n.length; i++)
-        n[i] = crypt$1.endian(n[i]);
-      return n;
-    },
-
-    // Generate an array of any length of random bytes
-    randomBytes: function(n) {
-      for (var bytes = []; n > 0; n--)
-        bytes.push(Math.floor(Math.random() * 256));
-      return bytes;
-    },
-
-    // Convert a byte array to big-endian 32-bit words
-    bytesToWords: function(bytes) {
-      for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-        words[b >>> 5] |= bytes[i] << (24 - b % 32);
-      return words;
-    },
-
-    // Convert big-endian 32-bit words to a byte array
-    wordsToBytes: function(words) {
-      for (var bytes = [], b = 0; b < words.length * 32; b += 8)
-        bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-      return bytes;
-    },
-
-    // Convert a byte array to a hex string
-    bytesToHex: function(bytes) {
-      for (var hex = [], i = 0; i < bytes.length; i++) {
-        hex.push((bytes[i] >>> 4).toString(16));
-        hex.push((bytes[i] & 0xF).toString(16));
-      }
-      return hex.join('');
-    },
-
-    // Convert a hex string to a byte array
-    hexToBytes: function(hex) {
-      for (var bytes = [], c = 0; c < hex.length; c += 2)
-        bytes.push(parseInt(hex.substr(c, 2), 16));
-      return bytes;
-    },
-
-    // Convert a byte array to a base-64 string
-    bytesToBase64: function(bytes) {
-      for (var base64 = [], i = 0; i < bytes.length; i += 3) {
-        var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-        for (var j = 0; j < 4; j++)
-          if (i * 8 + j * 6 <= bytes.length * 8)
-            base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-          else
-            base64.push('=');
-      }
-      return base64.join('');
-    },
-
-    // Convert a base-64 string to a byte array
-    base64ToBytes: function(base64) {
-      // Remove non-base-64 characters
-      base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
-
-      for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
-          imod4 = ++i % 4) {
-        if (imod4 == 0) continue;
-        bytes.push(((base64map.indexOf(base64.charAt(i - 1))
-            & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
-            | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
-      }
-      return bytes;
-    }
-  };
-
-  crypt.exports = crypt$1;
-})();
-
-var charenc = {
-  // UTF-8 encoding
-  utf8: {
-    // Convert a string to a byte array
-    stringToBytes: function(str) {
-      return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
-    },
-
-    // Convert a byte array to a string
-    bytesToString: function(bytes) {
-      return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
-    }
-  },
-
-  // Binary encoding
-  bin: {
-    // Convert a string to a byte array
-    stringToBytes: function(str) {
-      for (var bytes = [], i = 0; i < str.length; i++)
-        bytes.push(str.charCodeAt(i) & 0xFF);
-      return bytes;
-    },
-
-    // Convert a byte array to a string
-    bytesToString: function(bytes) {
-      for (var str = [], i = 0; i < bytes.length; i++)
-        str.push(String.fromCharCode(bytes[i]));
-      return str.join('');
-    }
-  }
-};
-
-var charenc_1 = charenc;
-
-/*!
- * Determine if an object is a Buffer
- *
- * @author   Feross Aboukhadijeh <https://feross.org>
- * @license  MIT
- */
-
-// The _isBuffer check is for Safari 5-7 support, because it's missing
-// Object.prototype.constructor. Remove this eventually
-var isBuffer_1 = function (obj) {
-  return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-};
-
-function isBuffer (obj) {
-  return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-}
-
-// For Node v0.10 support. Remove this eventually.
-function isSlowBuffer (obj) {
-  return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-}
-
-(function(){
-  var crypt$1 = crypt.exports,
-      utf8 = charenc_1.utf8,
-      isBuffer = isBuffer_1,
-      bin = charenc_1.bin,
-
-  // The core
-  md5 = function (message, options) {
-    // Convert to byte array
-    if (message.constructor == String)
-      if (options && options.encoding === 'binary')
-        message = bin.stringToBytes(message);
-      else
-        message = utf8.stringToBytes(message);
-    else if (isBuffer(message))
-      message = Array.prototype.slice.call(message, 0);
-    else if (!Array.isArray(message) && message.constructor !== Uint8Array)
-      message = message.toString();
-    // else, assume byte array already
-
-    var m = crypt$1.bytesToWords(message),
-        l = message.length * 8,
-        a =  1732584193,
-        b = -271733879,
-        c = -1732584194,
-        d =  271733878;
-
-    // Swap endian
-    for (var i = 0; i < m.length; i++) {
-      m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
-             ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
-    }
-
-    // Padding
-    m[l >>> 5] |= 0x80 << (l % 32);
-    m[(((l + 64) >>> 9) << 4) + 14] = l;
-
-    // Method shortcuts
-    var FF = md5._ff,
-        GG = md5._gg,
-        HH = md5._hh,
-        II = md5._ii;
-
-    for (var i = 0; i < m.length; i += 16) {
-
-      var aa = a,
-          bb = b,
-          cc = c,
-          dd = d;
-
-      a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
-      d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
-      c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
-      b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
-      a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
-      d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
-      c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
-      b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
-      a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
-      d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
-      c = FF(c, d, a, b, m[i+10], 17, -42063);
-      b = FF(b, c, d, a, m[i+11], 22, -1990404162);
-      a = FF(a, b, c, d, m[i+12],  7,  1804603682);
-      d = FF(d, a, b, c, m[i+13], 12, -40341101);
-      c = FF(c, d, a, b, m[i+14], 17, -1502002290);
-      b = FF(b, c, d, a, m[i+15], 22,  1236535329);
-
-      a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
-      d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
-      c = GG(c, d, a, b, m[i+11], 14,  643717713);
-      b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
-      a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
-      d = GG(d, a, b, c, m[i+10],  9,  38016083);
-      c = GG(c, d, a, b, m[i+15], 14, -660478335);
-      b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
-      a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
-      d = GG(d, a, b, c, m[i+14],  9, -1019803690);
-      c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
-      b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
-      a = GG(a, b, c, d, m[i+13],  5, -1444681467);
-      d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
-      c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
-      b = GG(b, c, d, a, m[i+12], 20, -1926607734);
-
-      a = HH(a, b, c, d, m[i+ 5],  4, -378558);
-      d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
-      c = HH(c, d, a, b, m[i+11], 16,  1839030562);
-      b = HH(b, c, d, a, m[i+14], 23, -35309556);
-      a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
-      d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
-      c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
-      b = HH(b, c, d, a, m[i+10], 23, -1094730640);
-      a = HH(a, b, c, d, m[i+13],  4,  681279174);
-      d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
-      c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
-      b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
-      a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
-      d = HH(d, a, b, c, m[i+12], 11, -421815835);
-      c = HH(c, d, a, b, m[i+15], 16,  530742520);
-      b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
-
-      a = II(a, b, c, d, m[i+ 0],  6, -198630844);
-      d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
-      c = II(c, d, a, b, m[i+14], 15, -1416354905);
-      b = II(b, c, d, a, m[i+ 5], 21, -57434055);
-      a = II(a, b, c, d, m[i+12],  6,  1700485571);
-      d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
-      c = II(c, d, a, b, m[i+10], 15, -1051523);
-      b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
-      a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
-      d = II(d, a, b, c, m[i+15], 10, -30611744);
-      c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
-      b = II(b, c, d, a, m[i+13], 21,  1309151649);
-      a = II(a, b, c, d, m[i+ 4],  6, -145523070);
-      d = II(d, a, b, c, m[i+11], 10, -1120210379);
-      c = II(c, d, a, b, m[i+ 2], 15,  718787259);
-      b = II(b, c, d, a, m[i+ 9], 21, -343485551);
-
-      a = (a + aa) >>> 0;
-      b = (b + bb) >>> 0;
-      c = (c + cc) >>> 0;
-      d = (d + dd) >>> 0;
-    }
-
-    return crypt$1.endian([a, b, c, d]);
-  };
-
-  // Auxiliary functions
-  md5._ff  = function (a, b, c, d, x, s, t) {
-    var n = a + (b & c | ~b & d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._gg  = function (a, b, c, d, x, s, t) {
-    var n = a + (b & d | c & ~d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._hh  = function (a, b, c, d, x, s, t) {
-    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-  md5._ii  = function (a, b, c, d, x, s, t) {
-    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-    return ((n << s) | (n >>> (32 - s))) + b;
-  };
-
-  // Package private blocksize
-  md5._blocksize = 16;
-  md5._digestsize = 16;
-
-  md5$1.exports = function (message, options) {
-    if (message === undefined || message === null)
-      throw new Error('Illegal argument ' + message);
-
-    var digestbytes = crypt$1.wordsToBytes(md5(message, options));
-    return options && options.asBytes ? digestbytes :
-        options && options.asString ? bin.bytesToString(digestbytes) :
-        crypt$1.bytesToHex(digestbytes);
-  };
-
-})();
-
-var md5 = md5$1.exports;
-
-/**
- * Please update the "photoURL" with your own
- * locally hosted icon, this is only used as
- * an initial example.
- */
-var IDENTITY_DEFAULTS = {
-    defaultUser: {
-        displayName: 'Guest',
-        photoURL: 'https://cdn0.iconfinder.com/data/icons/communication-line-10/24/account_profile_user_contact_person_avatar_placeholder-512.png',
-        email: '',
-        uid: '-1',
-    }
-};
-function createUseIdentity(api) {
-    var useIdentity = function (props) {
-        props = __assign(__assign({}, IDENTITY_DEFAULTS), props);
-        var defaultUser = props.defaultUser;
-        var signInByLink = api.link.signIn;
-        var signInByProvider = api.provider.signIn;
-        var signInByPassword = api.password.signIn;
-        var signInByPhone = api.phone.signIn;
-        var user = ensureUser();
-        function ensureUser() {
-            var user = api.getStorageUser(defaultUser);
-            if (!user.displayName && user.providerId === 'firebase')
-                user.displayName = user.phoneNumber;
-            user.photoURL = user.photoURL || defaultUser.photoURL;
-            return user;
-        }
-        /**
-         * Gets a gravatar based on email address.
-         *
-         * @param email the email address to get gravatar for.
-         * @param size the size of the gravatar.
-         */
-        function getGravatar(email, size) {
-            if (size === void 0) { size = 96; }
-            email = email || user.email || '';
-            if (!email)
-                return IDENTITY_DEFAULTS.defaultUser.photoURL;
-            var hash = md5(email.trim().toLowerCase());
-            return "https://www.gravatar.com/avatar/" + hash + "?s=" + size + "&r=g&d=mm";
-        }
-        return {
-            get defaultUser() { return IDENTITY_DEFAULTS.defaultUser; },
-            get isAuthenticated() { return api.isAuthenticated(); },
-            get user() { return ensureUser(); },
-            get emailLink() { return api.getStorageEmailLink(); },
-            get avatar() { return getGravatar(); },
-            get hasAuthLink() { return api.hasAuthLink(); },
-            providers: api.provider.providers,
-            signInByLink: signInByLink,
-            signInByProvider: signInByProvider,
-            signInByPassword: signInByPassword,
-            signInByPhone: signInByPhone,
-            signOut: api.signOut,
-        };
-    };
-    return useIdentity;
-}
-
 var RecaptchaComponentRef = React.forwardRef(function (props, ref) {
     props = __assign({ id: 'recaptcha-container' }, props);
     return (React__default['default'].createElement("div", __assign({}, props, { ref: ref })));
@@ -2940,7 +2869,6 @@ var ACTION_CODES = {
 var AUTH_DEFAULTS = {
     firebase: null,
     enableWatchState: true,
-    isAuthenticatedKey: 'isAuthenticated',
     userStorageKey: 'user',
     emailStorageLinkKey: 'emailLinkSignIn',
     enabledProviders: [],
@@ -3535,9 +3463,101 @@ exports.exclude = (input, filter, options) => {
 };
 }(queryString));
 
+var _logger;
+/**
+   * Converts an error to object literal.
+   *
+   * @param err the error to convert to object
+   */
+function serializeError(err) {
+    if (!(err instanceof Error))
+        return {};
+    var result = Object.getOwnPropertyNames(err).reduce(function (a, c) {
+        a[c] = err[c];
+        return a;
+    }, {});
+    if (err.name && !result.name)
+        result.name = err.name;
+    return result;
+}
+function initLogger(logger) {
+    function log(type, value) {
+        var payload;
+        if (type instanceof Error) {
+            value = serializeError(type);
+            type = 'error';
+            value.level = 'error';
+        }
+        else if (type === 'string' && !['fatal', 'error', 'warn', 'info', 'debug'].includes(type)) {
+            value = {
+                level: 'log',
+                message: type
+            };
+            type = '';
+        }
+        else if (typeof type === 'object') {
+            value = type;
+            type = '';
+        }
+        type = type || 'log';
+        payload = value;
+        payload.level = payload.level || type;
+        payload.message = payload.message || '';
+        payload.timestamp = Date.now();
+        logger(payload);
+    }
+    return log;
+}
+function createLogger(logger) {
+    if (!_logger)
+        _logger = initLogger(logger);
+    return _logger;
+}
+
 var _utils;
 function initCommon(options) {
-    var _a = options, firebaseInstance = _a.firebase, userStorageKey = _a.userStorageKey, emailStorageLinkKey = _a.emailStorageLinkKey, isAuthenticatedKey = _a.isAuthenticatedKey;
+    var _a = options, firebaseInstance = _a.firebase, logger = _a.logger, enabledProviders = _a.enabledProviders, userStorageKey = _a.userStorageKey, emailStorageLinkKey = _a.emailStorageLinkKey;
+    var log = createLogger(logger);
+    var providers = {};
+    var PROVIDERS_MAP = {
+        google: function () { return new firebaseInstance.auth.GoogleAuthProvider(); },
+        facebook: function () { return new firebaseInstance.auth.FacebookAuthProvider(); },
+        github: function () { return new firebaseInstance.auth.GithubAuthProvider(); },
+        twitter: function () { return new firebaseInstance.auth.TwitterAuthProvider(); },
+        microsoft: function () { return new firebaseInstance.auth.OAuthProvider('microsoft.com'); },
+        yahoo: function () { return new firebaseInstance.auth.OAuthProvider('yahoo.com'); },
+        apple: function () { return new firebaseInstance.auth.OAuthProvider('apple.com'); },
+        phone: function () { return new firebaseInstance.auth.PhoneAuthProvider(); }
+    };
+    enabledProviders.forEach(function (k) {
+        if (typeof PROVIDERS_MAP[k] !== 'undefined') {
+            providers[k] = PROVIDERS_MAP[k]();
+        }
+        else {
+            log({ level: 'warn', message: "Provider " + k + " is not in known providers [" + Object.keys(PROVIDERS_MAP).join(', ') + "]" });
+        }
+    });
+    /**
+     * Gets the ids of all enabled providers.
+     */
+    function getEnabledProviderIDs() {
+        return Object.keys(providers).map(function (k) {
+            return providers[k].providerId;
+        });
+    }
+    function signInProvider(user) {
+        return __awaiter(this, void 0, void 0, function () {
+            var tokenResult;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, user.getIdTokenResult()];
+                    case 1:
+                        tokenResult = _a.sent();
+                        return [2 /*return*/, tokenResult.signInProvider];
+                }
+            });
+        });
+    }
     function stringifyParams(params) {
         return queryString.stringify(params);
     }
@@ -3564,6 +3584,16 @@ function initCommon(options) {
                     case 3: return [2 /*return*/];
                 }
             });
+        });
+    }
+    function hasProvider(user) {
+        var providers = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            providers[_i - 1] = arguments[_i];
+        }
+        var arr = (user === null || user === void 0 ? void 0 : user.providerData) || [];
+        return providers.some(function (v) {
+            return !!arr.find(function (p) { return (p === null || p === void 0 ? void 0 : p.providerId) === v; });
         });
     }
     function ensureDisplayName(user) {
@@ -3610,18 +3640,17 @@ function initCommon(options) {
     var setStorageEmailLink = function (email) { return storage.set(emailStorageLinkKey, email); };
     var removeStorageUser = function () { return storage.remove(userStorageKey); };
     var removeStorageEmailLink = function () { return storage.remove(emailStorageLinkKey); };
-    var isAuthenticated = function () {
-        return storage.get(isAuthenticatedKey) === true;
-    };
-    var setStorageAuthenticated = function () { return storage.set(isAuthenticatedKey, true); };
-    var removeStorageAuthenticated = function () { return storage.remove(isAuthenticatedKey); };
     return {
+        log: log,
+        providers: providers,
+        hasProvider: hasProvider,
+        signInProvider: signInProvider,
+        getEnabledProviderIDs: getEnabledProviderIDs,
         stringifyParams: stringifyParams,
         hasAuthLink: hasAuthLink,
         updateProfile: updateProfile,
         ensureDisplayName: ensureDisplayName,
         mapUser: mapUser,
-        isAuthenticated: isAuthenticated,
         hasStorageUser: hasStorageUser,
         hasStorageEmailLink: hasStorageEmailLink,
         getStorageUser: getStorageUser,
@@ -3629,9 +3658,7 @@ function initCommon(options) {
         setStorageUser: setStorageUser,
         setStorageEmailLink: setStorageEmailLink,
         removeStorageUser: removeStorageUser,
-        removeStorageEmailLink: removeStorageEmailLink,
-        setStorageAuthenticated: setStorageAuthenticated,
-        removeStorageAuthenticated: removeStorageAuthenticated
+        removeStorageEmailLink: removeStorageEmailLink
     };
 }
 function createCommon(options) {
@@ -3643,13 +3670,13 @@ function createCommon(options) {
 function initApi(options) {
     options = __assign(__assign({}, AUTH_DEFAULTS), options);
     // Destructure logger so we can init/pass in initOptions.
-    var logger = options.logger, rest = __rest(options, ["logger"]);
-    var _a = options, userStorageKey = _a.userStorageKey, enableWatchState = _a.enableWatchState, firebaseInstance = _a.firebase;
+    options.logger; var rest = __rest(options, ["logger"]);
+    var _a = options, enableWatchState = _a.enableWatchState, firebaseInstance = _a.firebase;
     // Initialize helpers/utils
     var initOptions = rest;
-    var log = createLogger(logger);
+    // Create common helpers/utils.
     var common = createCommon(options);
-    var hasAuthLink = common.hasAuthLink, ensureDisplayName = common.ensureDisplayName, mapUser = common.mapUser, isAuthenticated = common.isAuthenticated, hasStorageUser = common.hasStorageUser, hasStorageEmailLink = common.hasStorageEmailLink, getStorageUser = common.getStorageUser, getStorageEmailLink = common.getStorageEmailLink, setStorageUser = common.setStorageUser, setStorageEmailLink = common.setStorageEmailLink, removeStorageUser = common.removeStorageUser, removeStorageEmailLink = common.removeStorageEmailLink, setStorageAuthenticated = common.setStorageAuthenticated, removeStorageAuthenticated = common.removeStorageAuthenticated;
+    var log = common.log, hasProvider = common.hasProvider, providers = common.providers, hasAuthLink = common.hasAuthLink, signInProvider = common.signInProvider, ensureDisplayName = common.ensureDisplayName, mapUser = common.mapUser, hasStorageUser = common.hasStorageUser, hasStorageEmailLink = common.hasStorageEmailLink, getStorageUser = common.getStorageUser, getStorageEmailLink = common.getStorageEmailLink, setStorageUser = common.setStorageUser, setStorageEmailLink = common.setStorageEmailLink, removeStorageUser = common.removeStorageUser, removeStorageEmailLink = common.removeStorageEmailLink;
     options.onAuthCredential = options.onAuthCredential || (function (userCredential) {
         var _a, _b;
         var user = userCredential.user;
@@ -3664,7 +3691,6 @@ function initApi(options) {
     var model = createModel(options);
     // Pass instances to internal initOptions. 
     initOptions.model = model;
-    initOptions.log = log;
     initOptions.common = common;
     // Init SignIn Providers.
     var link = initLink(initOptions);
@@ -3680,7 +3706,7 @@ function initApi(options) {
      */
     function signOut(redirect) {
         return firebaseInstance.auth().signOut().then(function () {
-            storage.remove(userStorageKey);
+            removeStorageUser();
             if (redirect) {
                 if (typeof redirect === 'string' && typeof window !== 'undefined')
                     window.location.href = redirect;
@@ -3695,33 +3721,44 @@ function initApi(options) {
      *
      * @param handler optional on change handler to call on state changed.
      */
-    function watchState(handler) {
-        // signOutRedirect?: string | (() => void)
-        var unsubscribe = firebaseInstance.auth().onAuthStateChanged(function (user) {
-            if (handler)
-                return handler(user);
-            if (!user) {
-                removeStorageUser();
-                removeStorageAuthenticated();
-            }
-            // else if (user && user.emailVerified === false) {
-            //   removeStorageUser();
-            //   removeStorageAuthenticated();
-            //   signOut(signOutRedirect);
-            // }
-            else {
-                // If we have a firebase user but our
-                // storage key is null update with the user.
-                // NOTE: you cannot get a social provider
-                // accessToken here, you'd have to re-auth.
-                if (!hasStorageUser()) {
-                    var usr = initOptions.onAuthCredential({ user: user });
-                    if (usr)
-                        setStorageUser(usr);
+    function watchState(handler, signOutRedirect) {
+        var _this = this;
+        var unsubscribe = firebaseInstance.auth().onAuthStateChanged(function (user) { return __awaiter(_this, void 0, void 0, function () {
+            var providerId, usr;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (handler)
+                            return [2 /*return*/, handler(user)];
+                        if (!!user) return [3 /*break*/, 1];
+                        removeStorageUser();
+                        return [3 /*break*/, 4];
+                    case 1:
+                        if (!(user.emailVerified === false)) return [3 /*break*/, 3];
+                        return [4 /*yield*/, signInProvider(user)];
+                    case 2:
+                        providerId = _a.sent();
+                        if (providerId === 'password') {
+                            removeStorageUser();
+                            signOut(signOutRedirect);
+                            return [2 /*return*/];
+                        }
+                        _a.label = 3;
+                    case 3:
+                        // If we have a firebase user but our
+                        // storage key is null update with the user.
+                        // NOTE: you cannot get a social provider
+                        // accessToken here, you'd have to re-auth.
+                        if (!hasStorageUser()) {
+                            usr = initOptions.onAuthCredential({ user: user });
+                            if (usr)
+                                setStorageUser(usr);
+                        }
+                        _a.label = 4;
+                    case 4: return [2 /*return*/];
                 }
-                setStorageAuthenticated();
-            }
-        });
+            });
+        }); });
         return unsubscribe;
     }
     var unsubscribeWatchState = enableWatchState ? watchState : null;
@@ -3732,14 +3769,15 @@ function initApi(options) {
         model: model,
         password: password,
         phone: phone,
+        providers: providers,
         provider: provider,
         watchState: watchState,
         unsubscribeWatchState: unsubscribeWatchState,
         signOut: signOut,
         hasAuthLink: hasAuthLink,
+        hasProvider: hasProvider,
         ensureDisplayName: ensureDisplayName,
         mapUser: mapUser,
-        isAuthenticated: isAuthenticated,
         hasStorageUser: hasStorageUser,
         hasStorageEmailLink: hasStorageEmailLink,
         getStorageUser: getStorageUser,
@@ -3747,9 +3785,7 @@ function initApi(options) {
         setStorageUser: setStorageUser,
         setStorageEmailLink: setStorageEmailLink,
         removeStorageUser: removeStorageUser,
-        removeStorageEmailLink: removeStorageEmailLink,
-        setStorageAuthenticated: setStorageAuthenticated,
-        removeStorageAuthenticated: removeStorageAuthenticated
+        removeStorageEmailLink: removeStorageEmailLink
     };
 }
 /**

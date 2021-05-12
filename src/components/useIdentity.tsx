@@ -56,7 +56,7 @@ export function createUseIdentity<K extends Provider>(api: AuthApi<K>) {
 
     return {
       get defaultUser() { return IDENTITY_DEFAULTS.defaultUser; },
-      get isAuthenticated() { return api.isAuthenticated(); },
+      get hasUser() { return api.hasStorageUser(); },
       get user() { return ensureUser(); },
       get emailLink() { return api.getStorageEmailLink(); },
       get avatar() { return getGravatar() },

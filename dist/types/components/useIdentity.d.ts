@@ -7,7 +7,7 @@ export declare function createUseIdentity<K extends Provider>(api: AuthApi<K>): 
         email: string;
         uid: string;
     };
-    readonly isAuthenticated: boolean;
+    readonly hasUser: boolean;
     readonly user: U;
     readonly emailLink: string;
     readonly avatar: string;
