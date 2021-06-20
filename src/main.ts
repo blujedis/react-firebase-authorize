@@ -99,7 +99,7 @@ export function initApi<K extends Provider>(options: IAuthOptions<K>) {
    */
   function watchState(handler?: (user: firebase.User | null) => void, signOutRedirect?: string | (() => void)) {
 
-    const unsubscribe = firebaseInstance.auth().onAuthStateChanged(async (user) => {
+    const unsubscribe = firebaseInstance.auth().onAuthStateChanged(async (user: any) => {
 
       if (handler)
         return handler(user);

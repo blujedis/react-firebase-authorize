@@ -15,7 +15,7 @@ declare class TypeWrapper<K extends Provider> {
             signIn: (email: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
         };
         model: {
-            findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
+            findById: (uid: string) => any;
             create: <T extends firebase.UserInfo>(user: T) => void;
             update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void;
             handleCredential: (userCredential: IAuthCredential, suppressPersist?: boolean) => Promise<firebase.User>;
@@ -48,10 +48,10 @@ declare class TypeWrapper<K extends Provider> {
                 (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
             };
         };
-        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
+        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => any;
         unsubscribeWatchState: firebase.Unsubscribe;
-        signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
-        hasAuthLink: () => boolean;
+        signOut: (redirect?: string | (() => void) | undefined) => any;
+        hasAuthLink: () => any;
         hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
         ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
         mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
@@ -78,7 +78,7 @@ declare class TypeWrapper<K extends Provider> {
         signInProvider: <U_1 extends firebase.User>(user: U_1) => Promise<string | null>;
         getEnabledProviderIDs: () => string[];
         stringifyParams: (params: Record<string, any>) => string;
-        hasAuthLink: () => boolean;
+        hasAuthLink: () => any;
         updateProfile: (profile: {
             displayName?: string | undefined;
             photoURL?: string | undefined;
@@ -95,7 +95,7 @@ declare class TypeWrapper<K extends Provider> {
         removeStorageEmailLink: () => void;
     };
     model(options: IAuthOptions<K>): {
-        findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
+        findById: (uid: string) => any;
         create: <T extends firebase.UserInfo>(user: T) => void;
         update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void;
         handleCredential: (userCredential: IAuthCredential, suppressPersist?: boolean) => Promise<firebase.User>;
@@ -132,7 +132,7 @@ export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'cre
     };
 }
 interface AuthBaseOptions<K extends Provider> {
-    firebase: Firebase;
+    firebase: any;
     enableWatchState?: boolean;
     userStorageKey?: string;
     emailStorageLinkKey?: string;
@@ -148,6 +148,7 @@ export interface IAuthOptions<K extends Provider> extends AuthBaseOptions<K> {
     logger?: (payload: IAuthLogPayload) => void;
 }
 export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K> {
+    firebase: typeof firebase;
     common: AuthCommon<K>;
     model: AuthModel<K>;
     enableLink?: boolean;

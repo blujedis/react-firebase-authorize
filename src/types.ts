@@ -52,7 +52,7 @@ export interface IAuthCredential extends Omit<firebase.auth.UserCredential, 'cre
 }
 
 interface AuthBaseOptions<K extends Provider> {
-  firebase: Firebase;
+  firebase: any;
   enableWatchState?: boolean;
   userStorageKey?: string;
   emailStorageLinkKey?: string;
@@ -70,6 +70,7 @@ export interface IAuthOptions<K extends Provider> extends AuthBaseOptions<K> {
 }
 
 export interface IAuthInitOptions<K extends Provider> extends AuthBaseOptions<K> {
+  firebase: typeof firebase;
   common: AuthCommon<K>;
   model: AuthModel<K>;
   enableLink?: boolean;

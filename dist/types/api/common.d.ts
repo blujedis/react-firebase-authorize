@@ -14,7 +14,7 @@ export declare function initCommon<K extends Provider>(options: IAuthOptions<K>)
     signInProvider: <U_1 extends firebase.User>(user: U_1) => Promise<string | null>;
     getEnabledProviderIDs: () => string[];
     stringifyParams: (params: Record<string, any>) => string;
-    hasAuthLink: () => boolean;
+    hasAuthLink: () => any;
     updateProfile: (profile: {
         displayName?: string;
         photoURL?: string;
@@ -44,7 +44,7 @@ export declare function createCommon<K extends Provider>(options: IAuthOptions<K
     signInProvider: <U_1 extends firebase.User>(user: U_1) => Promise<string | null>;
     getEnabledProviderIDs: () => string[];
     stringifyParams: (params: Record<string, any>) => string;
-    hasAuthLink: () => boolean;
+    hasAuthLink: () => any;
     updateProfile: (profile: {
         displayName?: string | undefined;
         photoURL?: string | undefined;

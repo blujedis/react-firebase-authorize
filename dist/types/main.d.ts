@@ -16,7 +16,7 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
         signIn: (email: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
     };
     model: {
-        findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
+        findById: (uid: string) => any;
         create: <T extends firebase.UserInfo>(user: T) => void;
         update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void; /**
          * Signs the user out of Firebase and optionally redirects.
@@ -54,10 +54,10 @@ export declare function initApi<K extends Provider>(options: IAuthOptions<K>): {
             (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
         };
     };
-    watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
+    watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => any;
     unsubscribeWatchState: firebase.Unsubscribe;
-    signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
-    hasAuthLink: () => boolean;
+    signOut: (redirect?: string | (() => void) | undefined) => any;
+    hasAuthLink: () => any;
     hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
     ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
     mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
@@ -92,7 +92,7 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
             signIn: (email: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
         };
         model: {
-            findById: (uid: string) => Promise<firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>>;
+            findById: (uid: string) => any;
             create: <T extends firebase.UserInfo>(user: T) => void;
             update: <T_1 extends Partial<firebase.UserInfo> & Record<string, any>>(user: T_1) => void; /**
              * Signs the user out of Firebase and optionally redirects.
@@ -130,10 +130,10 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
                 (provider: firebase.auth.AuthProvider, withRedirect?: boolean | undefined): Promise<firebase.User>;
             };
         };
-        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => firebase.Unsubscribe;
+        watchState: (handler?: ((user: firebase.User | null) => void) | undefined, signOutRedirect?: string | (() => void) | undefined) => any;
         unsubscribeWatchState: firebase.Unsubscribe;
-        signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
-        hasAuthLink: () => boolean;
+        signOut: (redirect?: string | (() => void) | undefined) => any;
+        hasAuthLink: () => any;
         hasProvider: <U extends firebase.User>(user: U, ...providers: string[]) => boolean;
         ensureDisplayName: <U_1 extends firebase.UserInfo>(user: U_1) => U_1;
         mapUser: <U_2 extends Record<string, any>>(user: firebase.User | null, extend?: U_2) => (firebase.UserInfo & U_2) | null;
@@ -157,7 +157,7 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
         readonly user: U_3;
         readonly emailLink: string;
         readonly avatar: string;
-        readonly hasAuthLink: boolean;
+        readonly hasAuthLink: any;
         providers: import("./types").ProviderMap<K>;
         signInByLink: (email: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
         signInByProvider: {
@@ -166,7 +166,7 @@ export declare function createAuth<K extends Provider>(options: IAuthOptions<K>)
         };
         signInByPassword: (email: string, password: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
         signInByPhone: (number: string, verifier: firebase.auth.RecaptchaVerifier) => Promise<(code: string) => Promise<firebase.User>>;
-        signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
+        signOut: (redirect?: string | (() => void) | undefined) => any;
     };
     useRecaptcha: typeof useRecaptcha;
 };

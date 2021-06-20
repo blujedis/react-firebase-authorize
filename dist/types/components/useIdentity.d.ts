@@ -11,7 +11,7 @@ export declare function createUseIdentity<K extends Provider>(api: AuthApi<K>): 
     readonly user: U;
     readonly emailLink: string;
     readonly avatar: string;
-    readonly hasAuthLink: boolean;
+    readonly hasAuthLink: any;
     providers: import("../types").ProviderMap<K>;
     signInByLink: (email: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
     signInByProvider: {
@@ -20,6 +20,6 @@ export declare function createUseIdentity<K extends Provider>(api: AuthApi<K>): 
     };
     signInByPassword: (email: string, password: string, params?: Record<string, any> | undefined, actionCodes?: firebase.auth.ActionCodeSettings | undefined) => Promise<boolean | firebase.User>;
     signInByPhone: (number: string, verifier: firebase.auth.RecaptchaVerifier) => Promise<(code: string) => Promise<firebase.User>>;
-    signOut: (redirect?: string | (() => void) | undefined) => Promise<void>;
+    signOut: (redirect?: string | (() => void) | undefined) => any;
 };
 //# sourceMappingURL=useIdentity.d.ts.map
